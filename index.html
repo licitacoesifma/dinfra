@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGOBRAS – Sistema de Gestão de Obras · IFMA</title>
+<style>
+:root {
+  --bg: #F0F2F5; --surface: #FFFFFF; --surface-2: #F7F8FA; --border: #E2E6EA;
+  --text-primary: #1A1D23; --text-secondary: #5A6272; --text-muted: #8C95A6;
+  --blue: #2563EB; --blue-light: #EFF4FF; --blue-mid: #BFCFFD;
+  --red: #DC2626; --red-light: #FEF2F2; --red-mid: #FECACA;
+  --amber: #D97706; --amber-light: #FFFBEB; --amber-mid: #FDE68A;
+  --green: #059669; --green-light: #ECFDF5; --green-mid: #A7F3D0;
+  --purple: #7C3AED; --purple-light: #F5F3FF;
+  --teal: #0D9488; --teal-light: #F0FDFA; --teal-mid: #99F6E4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07); --shadow: 0 4px 12px rgba(0,0,0,0.08);
+  --radius: 10px; --font: system-ui,-apple-system,'Segoe UI',sans-serif; --mono: 'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:14px;line-height:1.5}
+.app{display:flex;height:100vh;overflow:hidden}
+/* SIDEBAR */
+.sidebar{width:240px;background:#1A1D23;display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-brand{padding:18px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.brand-icon{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff;flex-shrink:0}
+.brand-name{font-weight:800;font-size:15px;color:#fff;letter-spacing:-0.3px}
+.brand-sub{font-size:10px;color:rgba(255,255,255,0.3)}
+.nav{padding:12px 10px;flex:1;overflow-y:auto}
+.nav-section{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.8px;padding:10px 10px 4px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:rgba(255,255,255,0.55);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;margin-bottom:2px;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.9)}
+.nav-item.active{background:var(--blue);color:#fff}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px}
+.nav-badge-teal{margin-left:auto;background:var(--teal);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px}
+.sidebar-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.07)}
+.user-chip{display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:8px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,0.85)}
+.user-role-label{font-size:10px;color:rgba(255,255,255,0.35)}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-left h2{font-size:14px;font-weight:700}
+.topbar-left p{font-size:11px;color:var(--text-secondary)}
+.role-select{background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);font-size:12px;font-weight:600;padding:6px 10px;border-radius:7px;cursor:pointer;outline:none;font-family:var(--font)}
+.content{flex:1;overflow-y:auto;padding:24px}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid}
+.badge-red{background:var(--red-light);color:var(--red);border-color:var(--red-mid)}
+.badge-blue{background:var(--blue-light);color:var(--blue);border-color:var(--blue-mid)}
+.badge-green{background:var(--green-light);color:var(--green);border-color:var(--green-mid)}
+.badge-amber{background:var(--amber-light);color:var(--amber);border-color:var(--amber-mid)}
+.badge-gray{background:var(--surface-2);color:var(--text-secondary);border-color:var(--border)}
+.badge-teal{background:var(--teal-light);color:var(--teal);border-color:var(--teal-mid)}
+.badge-purple{background:var(--purple-light);color:var(--purple);border-color:#C4B5FD}
+.chip-sm{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;border:1px solid}
+.chip-red{background:var(--red-light);color:var(--red);border-color:var(--red-mid)}
+.chip-blue{background:var(--blue-light);color:var(--blue);border-color:var(--blue-mid)}
+.chip-green{background:var(--green-light);color:var(--green);border-color:var(--green-mid)}
+.chip-amber{background:var(--amber-light);color:var(--amber);border-color:var(--amber-mid)}
+.chip-gray{background:var(--surface-2);color:var(--text-secondary);border-color:var(--border)}
+.chip-teal{background:var(--teal-light);color:var(--teal);border-color:var(--teal-mid)}
+.chip-purple{background:var(--purple-light);color:var(--purple);border-color:#C4B5FD}
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid;font-family:var(--font);transition:all 0.15s}
+.btn-primary{background:var(--blue);border-color:#1D4ED8;color:#fff}
+.btn-primary:hover{background:#1D4ED8}
+.btn-teal{background:var(--teal);border-color:#0F766E;color:#fff}
+.btn-teal:hover{background:#0F766E}
+.btn-green{background:var(--green);border-color:#047857;color:#fff}
+.btn-green:hover{background:#047857}
+.btn-outline-red{background:var(--surface);border-color:var(--red-mid);color:var(--red)}
+.btn-outline-red:hover{background:var(--red-light)}
+.btn-outline-blue{background:var(--surface);border-color:var(--blue-mid);color:var(--blue)}
+.btn-outline-blue:hover{background:var(--blue-light)}
+.btn-outline-amber{background:var(--surface);border-color:var(--amber-mid);color:var(--amber)}
+.btn-outline-amber:hover{background:var(--amber-light)}
+.btn-ghost{background:var(--surface);border-color:var(--border);color:var(--text-secondary)}
+.btn-ghost:hover{background:var(--surface-2)}
+/* SECTION */
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-hd h3{font-size:15px;font-weight:700}
+.section-hd p{font-size:12px;color:var(--text-secondary);margin-top:1px}
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);padding:16px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:14px}
+.stat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-icon svg{width:20px;height:20px}
+.stat-label{font-size:12px;color:var(--text-secondary);font-weight:500}
+.stat-value{font-size:26px;font-weight:800;line-height:1;margin-top:2px}
+/* NJP BANNER */
+.njp-banner{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:var(--radius);padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+.njp-banner-left{display:flex;align-items:center;gap:14px}
+.njp-banner-icon{width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.njp-banner-icon svg{width:22px;height:22px;color:#fff}
+.njp-banner-title{font-size:17px;font-weight:800;color:#fff}
+.njp-banner-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px}
+.njp-stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.njp-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.njp-stat-label{font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:4px}
+.njp-stat-value{font-size:24px;font-weight:800;color:var(--text-primary)}
+.njp-stat-sub{font-size:10px;color:var(--text-muted);margin-top:2px}
+/* ALERTS */
+.alert-strip{background:var(--red-light);border:1px solid var(--red-mid);border-left:3px solid var(--red);border-radius:var(--radius);padding:12px 16px;margin-bottom:18px;display:flex;align-items:flex-start;gap:10px}
+.alert-strip svg{width:18px;height:18px;color:var(--red);flex-shrink:0;margin-top:1px}
+.alert-strip strong{color:var(--red);font-size:13px}
+.alert-strip p{font-size:12px;color:#7F1D1D;margin-top:2px}
+.alert-strip-amber{background:var(--amber-light);border:1px solid var(--amber-mid);border-left:3px solid var(--amber);border-radius:var(--radius);padding:12px 16px;margin-bottom:18px;display:flex;align-items:flex-start;gap:10px}
+.alert-strip-amber svg{width:18px;height:18px;color:var(--amber);flex-shrink:0;margin-top:1px}
+.alert-strip-amber strong{color:#92400E;font-size:13px}
+.alert-strip-amber p{font-size:12px;color:#78350F;margin-top:2px}
+/* KANBAN */
+.njp-kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kanban-col{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.kanban-col-hd{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface)}
+.kanban-col-title{font-size:12px;font-weight:700}
+.kanban-col-count{font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px}
+.kanban-col-body{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:80px}
+.njp-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden}
+.njp-card:hover{border-color:var(--blue-mid);box-shadow:var(--shadow)}
+.njp-urgent-stripe{position:absolute;top:0;left:0;bottom:0;width:4px}
+.njp-card-title{font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:3px}
+.njp-card-origem{font-size:10px;color:var(--text-muted);margin-bottom:6px}
+.njp-card-chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px}
+.njp-card-footer{display:flex;align-items:center;justify-content:space-between}
+.njp-card-server{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-secondary)}
+.njp-card-server-dot{width:16px;height:16px;border-radius:4px;font-size:8px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.njp-card-date{font-size:10px;color:var(--text-muted)}
+/* ESPECIALIDADES CARDS */
+.esp-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top:24px}
+.esp-section-hd h3{font-size:14px;font-weight:700}
+.esp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.esp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;cursor:pointer;transition:all 0.15s}
+.esp-card:hover{box-shadow:var(--shadow);border-color:var(--blue-mid)}
+.esp-card-header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.esp-disc-badge{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;flex-shrink:0}
+.esp-card-info{flex:1;min-width:0}
+.esp-card-disc{font-size:13px;font-weight:700;color:var(--text-primary)}
+.esp-card-proc{font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.esp-card-status-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surface-2)}
+.esp-progress-bar{width:100%;height:4px;background:var(--border);border-radius:99px;margin:0 16px 10px;width:calc(100% - 32px)}
+.esp-progress-fill{height:100%;border-radius:99px;transition:width 0.4s}
+.esp-checklist-wrap{padding:0 16px 12px}
+.esp-check-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.esp-check-item:last-child{border-bottom:none}
+.esp-check-box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s}
+.esp-check-box.done{background:var(--green);border-color:#047857}
+.esp-check-box.done svg{width:10px;height:10px;color:#fff}
+.esp-check-box.blocked{background:var(--red-light);border-color:var(--red)}
+.esp-check-label{flex:1;color:var(--text-primary)}
+.esp-check-label.done{text-decoration:line-through;color:var(--text-muted)}
+.esp-check-doc{font-size:9px;font-family:var(--mono);color:var(--blue);background:var(--blue-light);padding:1px 4px;border-radius:3px;flex-shrink:0}
+/* PROCESSO DETAIL */
+.proc-detail-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-bottom:14px;overflow:hidden}
+.proc-detail-hd{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.1s}
+.proc-detail-hd:hover{background:var(--surface-2)}
+.proc-detail-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.proc-tipo-badge{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.proc-title{font-size:14px;font-weight:700}
+.proc-meta{font-size:11px;color:var(--text-secondary);margin-top:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nup-chip{font-family:var(--mono);font-size:10px;background:var(--surface-2);border:1px solid var(--border);padding:1px 6px;border-radius:4px;color:var(--text-secondary)}
+.chevron{width:20px;height:20px;transition:transform 0.2s;color:var(--text-muted);flex-shrink:0}
+.chevron.open{transform:rotate(180deg)}
+.proc-detail-body{padding:16px 18px;border-top:1px solid var(--border);background:#FAFBFC}
+/* TYPE TAG */
+.type-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.type-edi{background:#EFF6FF;color:#1E40AF;border:1px solid #BFDBFE}
+.type-imp{background:#F0FDFA;color:#0F766E;border:1px solid #99F6E4}
+/* SERVER CARDS */
+.njp-servers-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
+.njp-server-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.njp-server-header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.njp-server-av{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.njp-server-info{flex:1}
+.njp-server-name{font-size:14px;font-weight:700}
+.njp-server-role{font-size:11px;color:var(--text-secondary);margin-top:1px}
+.njp-server-capacity{text-align:right}
+.njp-cap-num{font-size:20px;font-weight:800}
+.njp-cap-label{font-size:10px;color:var(--text-muted)}
+.njp-server-bar{width:100%;height:5px;background:var(--border)}
+.njp-server-bar-fill{height:100%;transition:width 0.5s}
+.njp-server-body{padding:10px 16px 14px}
+.njp-proc-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.njp-proc-item:last-child{border-bottom:none}
+.njp-proc-rank{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.njp-proc-rank.r1{background:#FEE2E2;color:var(--red)}
+.njp-proc-rank.r2{background:#FEF3C7;color:var(--amber)}
+.njp-proc-rank.r3{background:var(--surface-2);color:var(--text-muted)}
+.njp-proc-name{font-size:12px;font-weight:600;color:var(--text-primary)}
+.njp-proc-fase{font-size:10px;color:var(--text-muted);margin-top:2px}
+.njp-cap-warning{background:var(--red-light);border:1px solid var(--red-mid);border-radius:7px;padding:8px 12px;font-size:11px;color:#7F1D1D;display:flex;align-items:flex-start;gap:7px;margin-top:10px}
+.njp-cap-warning svg{width:14px;height:14px;flex-shrink:0;color:var(--red);margin-top:1px}
+.njp-cap-ok{background:var(--green-light);border:1px solid var(--green-mid);border-radius:7px;padding:8px 12px;font-size:11px;color:#065F46;display:flex;align-items:center;gap:7px;margin-top:10px}
+.njp-cap-ok svg{width:14px;height:14px;flex-shrink:0;color:var(--green)}
+.njp-slot-empty{border:1.5px dashed var(--border);border-radius:7px;padding:8px 12px;font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:7px;margin-top:8px}
+.njp-slot-empty svg{width:14px;height:14px;flex-shrink:0}
+.njp-delib-needed{background:linear-gradient(135deg,#FFF7ED,#FFFBEB);border:1.5px solid var(--amber-mid);border-radius:8px;padding:14px 16px;margin-top:10px}
+.njp-delib-hd{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#92400E;margin-bottom:8px}
+.njp-delib-hd svg{width:16px;height:16px;color:var(--amber)}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:14px;box-shadow:0 24px 48px rgba(0,0,0,0.2);width:100%;max-width:640px;transform:translateY(10px);transition:transform 0.2s;max-height:90vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-hd{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-icon svg{width:18px;height:18px}
+.modal-title{font-size:15px;font-weight:700}
+.modal-sub{font-size:11px;color:var(--text-secondary);margin-top:2px}
+.modal-body{padding:18px 20px}
+.form-label{font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;letter-spacing:0.2px;display:block}
+.form-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text-primary);background:var(--surface-2);outline:none;transition:border-color 0.15s;margin-bottom:14px}
+.form-input:focus{border-color:var(--blue);background:var(--surface)}
+select.form-input{cursor:pointer}
+textarea.form-input{resize:vertical;min-height:80px;line-height:1.6}
+.modal-ft{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:var(--surface)}
+.nota-audit{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--text-secondary);line-height:1.6}
+/* ESPECIALIDADE PICKER */
+.disc-pick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.disc-pick-item{border:2px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:10px}
+.disc-pick-item:hover{border-color:var(--blue-mid);background:var(--blue-light)}
+.disc-pick-item.sel{border-color:var(--blue);background:var(--blue-light)}
+.disc-pick-dot{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;flex-shrink:0}
+.disc-pick-name{font-size:12px;font-weight:600;color:var(--text-primary)}
+.disc-pick-count{font-size:10px;color:var(--text-muted)}
+/* SERVER PICKER */
+.server-picker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.server-pick-card{border:2px solid var(--border);border-radius:9px;padding:10px 12px;cursor:pointer;transition:all 0.15s}
+.server-pick-card:hover{border-color:var(--blue-mid);background:var(--blue-light)}
+.server-pick-card.sel{border-color:var(--blue);background:var(--blue-light)}
+.server-pick-card.full{border-color:var(--red-mid);background:var(--red-light);opacity:0.75;cursor:not-allowed}
+.server-pick-name{font-size:12px;font-weight:700}
+.server-pick-cargo{font-size:10px;color:var(--text-secondary);margin-top:1px}
+.server-pick-cap{font-size:10px;font-weight:700;margin-top:5px}
+/* QUEUE REORDER */
+.queue-reorder-list{display:flex;flex-direction:column;gap:6px}
+.queue-reorder-item{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;background:var(--surface);transition:all 0.15s}
+.queue-reorder-item.priority{border-color:var(--red-mid);background:var(--red-light)}
+.queue-reorder-item.secondary{border-color:var(--amber-mid);background:var(--amber-light)}
+.queue-pos{width:28px;height:28px;border-radius:7px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.queue-pos.pos1{background:#FEE2E2;color:var(--red)}
+.queue-pos.pos2{background:#FEF3C7;color:var(--amber)}
+.queue-move-btns{display:flex;flex-direction:column;gap:3px}
+.queue-move-btn{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 6px;cursor:pointer;font-size:10px;color:var(--text-secondary);transition:all 0.1s}
+.queue-move-btn:hover{background:var(--blue-light);border-color:var(--blue-mid);color:var(--blue)}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1A1D23;color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);max-width:360px;line-height:1.5;transition:opacity 0.3s}
+/* OBRAS */
+.obra-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);margin-bottom:12px;overflow:hidden}
+.obra-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.1s}
+.obra-header:hover{background:var(--surface-2)}
+.obra-title{font-size:14px;font-weight:700}
+.obra-meta{font-size:11px;color:var(--text-secondary);margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.obra-body{padding:16px 18px;border-top:1px solid var(--border);background:#FAFBFC}
+/* GANTT */
+.gantt-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:20px}
+.gantt-toolbar{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.gantt-toolbar-left{display:flex;align-items:center;gap:10px}
+.gantt-view-btn{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--surface-2);color:var(--text-secondary);cursor:pointer;transition:all 0.15s}
+.gantt-view-btn.active{background:var(--blue);border-color:#1D4ED8;color:#fff}
+.gantt-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.gantt-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-secondary)}
+.gantt-legend-dot{width:10px;height:10px;border-radius:2px}
+.gantt-scroll{overflow-x:auto;overflow-y:visible}
+.gantt-container{min-width:900px}
+.gantt-header-row{display:flex;border-bottom:2px solid var(--border);background:var(--surface-2)}
+.gantt-label-col{width:220px;flex-shrink:0;padding:8px 14px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;border-right:1px solid var(--border)}
+.gantt-timeline-cols{flex:1;display:flex}
+.gantt-month-col{flex:1;text-align:center;padding:8px 4px;font-size:10px;font-weight:700;color:var(--text-secondary);border-right:1px solid var(--border)}
+.gantt-month-col:last-child{border-right:none}
+.gantt-proc-group{border-bottom:1px solid var(--border)}
+.gantt-proc-group:last-child{border-bottom:none}
+.gantt-proc-row{display:flex;align-items:center;background:var(--surface-2);border-bottom:1px solid var(--border)}
+.gantt-proc-label{width:220px;flex-shrink:0;padding:8px 14px;font-size:11px;font-weight:700;color:var(--text-primary);border-right:1px solid var(--border);display:flex;align-items:center;gap:6px;overflow:hidden}
+.gantt-proc-label-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.gantt-proc-timeline{flex:1;position:relative;height:32px}
+.gantt-disc-row{display:flex;align-items:center;transition:background 0.1s}
+.gantt-disc-row:hover{background:#F8FAFF}
+.gantt-disc-label{width:220px;flex-shrink:0;padding:4px 14px 4px 28px;font-size:10px;color:var(--text-secondary);border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;gap:2px;overflow:hidden}
+.gantt-disc-label-row{display:flex;align-items:center;gap:5px}
+.gantt-disc-label-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gantt-disc-fase{font-size:9px;font-style:italic;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:13px}
+.gantt-disc-timeline{flex:1;position:relative;height:34px;background:repeating-linear-gradient(90deg,transparent,transparent calc(100%/12 - 1px),var(--border) calc(100%/12 - 1px),var(--border) calc(100%/12))}
+.gantt-bar{position:absolute;top:4px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;cursor:default;transition:filter 0.15s;min-width:4px}
+.gantt-bar:hover{filter:brightness(0.88)}
+.gantt-bar-stripe{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.15) 0px,rgba(255,255,255,0.15) 4px,transparent 4px,transparent 8px)}
+.gantt-today{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:10;pointer-events:none}
+.gantt-today::before{content:'Hoje';position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:800;color:var(--red);white-space:nowrap;background:var(--surface);padding:0 3px;border-radius:3px}
+.gantt-pct-badge{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:var(--text-muted)}
+.gantt-empty-bar{position:absolute;top:6px;height:12px;border-radius:3px;background:var(--border);opacity:0.5}
+.gantt-summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px}
+.gantt-summary-card h4{font-size:13px;font-weight:700;margin-bottom:12px}
+.gantt-server-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.gantt-server-row:last-child{margin-bottom:0}
+.gantt-server-name{width:160px;font-size:12px;font-weight:600;color:var(--text-primary);flex-shrink:0}
+.gantt-server-bar-wrap{flex:1;height:16px;background:var(--surface-2);border-radius:99px;overflow:hidden;position:relative}
+.gantt-server-fill{height:100%;border-radius:99px;transition:width 0.5s}
+.gantt-server-pct{width:36px;font-size:11px;font-weight:700;text-align:right;flex-shrink:0}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">SI</div>
+    <div><div class="brand-name">SIGOBRAS</div><div class="brand-sub">IFMA · DINFRA–PROAD</div></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="goView('dashboard')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      Dashboard Executivo
+    </div>
+    <div class="nav-item" onclick="goView('njp')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M15 11l-3 3-1.5-1.5"/></svg>
+      Gestão NJP
+      <span class="nav-badge-teal" id="njpBadge">0</span>
+    </div>
+    <div class="nav-item" onclick="goView('servidores')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      Servidores & Carga
+    </div>
+    <div class="nav-item" onclick="goView('gantt')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      Gantt de Projetos
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar" id="sidebarAvatar">WP</div>
+      <div>
+        <div class="user-name" id="sidebarName">Walterney Pereira</div>
+        <div class="user-role-label" id="sidebarRole">Chefe NJP · DINFRA</div>
+      </div>
+    </div>
+  </div>
+</aside>
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h2 id="topbarTitle">Dashboard Executivo</h2>
+      <p id="topbarSub">Visão macro da infraestrutura institucional.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:var(--text-muted);font-weight:600">Perfil:</span>
+      <select class="role-select" id="roleSelect" onchange="changeRole(this.value)">
+        <option value="Gerencial">Chefe NJP (Gerencial)</option>
+        <option value="Estratégico">Estratégico (Reitoria)</option>
+        <option value="Alimentador">Alimentador Técnico (Servidor)</option>
+      </select>
+    </div>
+  </header>
+  <main class="content" id="mainContent"></main>
+</div>
+</div>
+
+<!-- MODAL: NOVO PROCESSO SUAP -->
+<div class="modal-overlay" id="modalNovoProcesso">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-icon" style="background:var(--teal-light)"><svg fill="none" stroke="var(--teal)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></div>
+      <div><div class="modal-title">Registrar Novo Processo SUAP — NJP</div><div class="modal-sub">O processo será dividido em demandas por especialidade após o registro.</div></div>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label class="form-label">NOME DA OBRA / OBJETO</label><input class="form-input" id="np_nome" placeholder="Ex: Restaurante Estudantil · Campus X"></div>
+        <div><label class="form-label">ORIGEM</label>
+          <select class="form-input" id="np_origem">
+            <option value="">Selecione...</option>
+            <option>Reitoria</option><option>Campus Central</option><option>Campus Norte</option>
+            <option>Campus Maracanã</option><option>Campus São João dos Patos</option>
+            <option>Campus Porto Franco</option><option>Campus Carolina</option>
+            <option>Campus Imperatriz</option><option>Campus Caxias</option><option>Outro Campus</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label class="form-label">NUP SUAP</label><input class="form-input" id="np_nup" placeholder="23249.XXXXXX.2026-XX"></div>
+        <div><label class="form-label">PRAZO FINAL</label><input type="date" class="form-input" id="np_prazo"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label class="form-label">PRIORIDADE</label>
+          <select class="form-input" id="np_prioridade">
+            <option value="Alta">Alta</option><option value="Média" selected>Média</option><option value="Baixa">Baixa</option>
+          </select>
+        </div>
+        <div><label class="form-label">TIPO DO PROCESSO</label>
+          <select class="form-input" id="np_tipo" onchange="renderDiscPicker()">
+            <option value="edificacao">Projeto de Edificação (inclui Implantação)</option>
+            <option value="implantacao">Projeto de Implantação (somente)</option>
+          </select>
+        </div>
+      </div>
+      <label class="form-label">DESCRIÇÃO / OBSERVAÇÕES</label>
+      <textarea class="form-input" id="np_descricao" placeholder="Descreva o escopo, área estimada, especificidades..."></textarea>
+      <label class="form-label">ESPECIALIDADES A DISTRIBUIR</label>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px" id="disc_info">Selecione as disciplinas que terão demandas atribuídas neste processo.</div>
+      <div class="disc-pick-grid" id="nd_disc_picker"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal('modalNovoProcesso')">Cancelar</button>
+      <button class="btn btn-teal" onclick="confirmNovoProcesso()">Registrar Processo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ATRIBUIR SERVIDOR A ESPECIALIDADE -->
+<div class="modal-overlay" id="modalAtribuir">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-icon" style="background:var(--blue-light)"><svg fill="none" stroke="var(--blue)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+      <div><div class="modal-title" id="atrib_title">Atribuir Servidor</div><div class="modal-sub" id="atrib_sub">Selecione o servidor responsável por esta especialidade.</div></div>
+    </div>
+    <div class="modal-body">
+      <div class="server-picker-grid" id="atrib_server_picker"></div>
+      <div id="atrib_cap_alert"></div>
+      <div id="atrib_limite_config" style="display:none">
+        <label class="form-label" style="margin-top:4px">LIMITE DE PROCESSOS SIMULTÂNEOS (Arquitetos/Urbanistas)</label>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <input type="number" class="form-input" id="atrib_limite_val" min="1" max="10" value="2" style="width:80px;margin-bottom:0">
+          <span style="font-size:12px;color:var(--text-secondary)">O Chefe NJP pode alterar este limite a qualquer momento.</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal('modalAtribuir')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmAtribuir()">Atribuir Servidor</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DELIBERAR FILA -->
+<div class="modal-overlay" id="modalRedistribuir">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-icon" style="background:var(--amber-light)"><svg fill="none" stroke="var(--amber)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg></div>
+      <div><div class="modal-title">Deliberação de Prioridade de Fila</div><div class="modal-sub" id="redist_sub">Chefe NJP define a ordem de atendimento.</div></div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">Use os botões ▲▼ para definir a ordem de prioridade. O processo na 1ª posição será atendido primeiro.</p>
+      <div class="queue-reorder-list" id="redist_queue"></div>
+      <label class="form-label" style="margin-top:14px">JUSTIFICATIVA DA DELIBERAÇÃO (mínimo 20 caracteres)</label>
+      <textarea class="form-input" id="redist_justif" placeholder="Fundamente a decisão de prioridade. Esta justificativa é auditável pela Reitoria, CGU e TCU."></textarea>
+      <div class="nota-audit">⚖ Esta deliberação será assinada com seu perfil, data/hora e vinculada aos NUPs. Sem esta decisão formal, o servidor não tem autorização para priorizar nenhum processo por conta própria.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal('modalRedistribuir')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmRedistribuir()">Confirmar Ordem de Fila</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: REGISTRAR IMPEDIMENTO -->
+<div class="modal-overlay" id="modalImpedimento">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-icon" style="background:var(--red-light)"><svg fill="none" stroke="var(--red)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+      <div><div class="modal-title">Registrar Impedimento</div><div class="modal-sub" id="imp_sub">Entregável bloqueado.</div></div>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">MOTIVO DO IMPEDIMENTO</label>
+      <textarea class="form-input" id="imp_motivo" placeholder="Descreva o impedimento técnico ou administrativo..."></textarea>
+      <label class="form-label">REFERÊNCIA / DESPACHO SUAP (opcional)</label>
+      <input class="form-input" id="imp_doc" placeholder="Ex: Despacho nº 45/2026">
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal('modalImpedimento')">Cancelar</button>
+      <button class="btn btn-outline-red" onclick="confirmImpedimento()">Registrar Impedimento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONCLUIR ITEM CHECKLIST -->
+<div class="modal-overlay" id="modalConcluir">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-icon" style="background:var(--green-light)"><svg fill="none" stroke="var(--green)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
+      <div><div class="modal-title">Concluir Entregável</div><div class="modal-sub" id="conc_sub">Informe o documento vinculado.</div></div>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">NÚMERO DO DOCUMENTO / REFERÊNCIA NO SUAP</label>
+      <input class="form-input" id="conc_doc" placeholder="Ex: ETP nº 123/2026, ART 456789...">
+      <div class="nota-audit">O documento ficará vinculado ao entregável no histórico auditável.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal('modalConcluir')">Cancelar</button>
+      <button class="btn btn-green" onclick="confirmConcluir()">Marcar como Concluído</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DEFINIÇÃO DAS DISCIPLINAS E ENTREGÁVEIS
+// ============================================================
+const DISCIPLINAS = {
+  ARQ: { nome: 'Arquitetura', cor: '#2563EB', iniciais: 'ARQ' },
+  EST: { nome: 'Estrutural', cor: '#7C3AED', iniciais: 'EST' },
+  HS:  { nome: 'Hidrossanitário', cor: '#0891B2', iniciais: 'HS' },
+  ELE: { nome: 'Elétrica', cor: '#D97706', iniciais: 'ELE' },
+  LOG: { nome: 'Lógica', cor: '#059669', iniciais: 'LOG' },
+  CIP: { nome: 'CIP / Incêndio', cor: '#DC2626', iniciais: 'CIP' },
+  CLI: { nome: 'Climatização', cor: '#9333EA', iniciais: 'CLI' },
+  ORC: { nome: 'Orçamento Final', cor: '#0F766E', iniciais: 'ORC' }
+};
+
+// Entregáveis por disciplina para EDIFICAÇÃO
+const CHECKLIST_EDIFICACAO = {
+  ARQ: [
+    { id:'arq1', label:'Projeto arquitetônico e acessibilidade — Pranchas Gráficas' },
+    { id:'arq2', label:'Projeto arquitetônico — RRT' },
+    { id:'arq3', label:'Projeto arquitetônico — Memorial Descritivo' },
+    { id:'arq4', label:'Projeto arquitetônico — Orçamento/Lista de materiais' }
+  ],
+  EST: [
+    { id:'est1', label:'Projeto estrutural — Pranchas Gráficas' },
+    { id:'est2', label:'Projeto estrutural — ART' },
+    { id:'est3', label:'Projeto estrutural — Memorial Descritivo' },
+    { id:'est4', label:'Projeto estrutural — Orçamento/Lista de materiais' }
+  ],
+  HS: [
+    { id:'hs1', label:'Projeto Hidráulico — Pranchas Gráficas' },
+    { id:'hs2', label:'Projeto Drenagem — Pranchas Gráficas' },
+    { id:'hs3', label:'Projeto Sanitário — Pranchas Gráficas' },
+    { id:'hs4', label:'Projeto de Impermeabilização — Pranchas Gráficas' },
+    { id:'hs5', label:'Projeto Hidrossanitário — ART' },
+    { id:'hs6', label:'Projeto Hidrossanitário — Memorial Descritivo' },
+    { id:'hs7', label:'Projeto Hidrossanitário — Orçamento/Lista de materiais' }
+  ],
+  ELE: [
+    { id:'ele1', label:'Projeto de Instalações BT — Pranchas Gráficas' },
+    { id:'ele2', label:'Projeto de Iluminação de Emergência — Pranchas Gráficas' },
+    { id:'ele3', label:'Projeto de SPDA — Pranchas Gráficas' },
+    { id:'ele4', label:'Projeto Elétrico — ART' },
+    { id:'ele5', label:'Projeto Elétrico — Memorial Descritivo' },
+    { id:'ele6', label:'Projeto Elétrico — Orçamento/Lista de materiais' }
+  ],
+  LOG: [
+    { id:'log1', label:'Projeto de Lógica — Pranchas Gráficas' },
+    { id:'log2', label:'Projeto de Lógica — ART' },
+    { id:'log3', label:'Projeto de Lógica — Memorial Descritivo' },
+    { id:'log4', label:'Projeto de Lógica — Orçamento/Lista de materiais' }
+  ],
+  CIP: [
+    { id:'cip1', label:'Projeto de CIP — Pranchas Gráficas' },
+    { id:'cip2', label:'Projeto de CIP — ART' },
+    { id:'cip3', label:'Projeto de CIP — Memorial Descritivo' },
+    { id:'cip4', label:'Projeto de CIP — Orçamento/Lista de materiais' }
+  ],
+  CLI: [
+    { id:'cli1', label:'Projeto de Climatização — Pranchas Gráficas' },
+    { id:'cli2', label:'Projeto de Climatização — ART/RRT' },
+    { id:'cli3', label:'Projeto de Climatização — Memorial Descritivo' },
+    { id:'cli4', label:'Projeto de Climatização — Orçamento/Lista de materiais' }
+  ]
+};
+
+// Entregáveis por disciplina para IMPLANTAÇÃO
+const CHECKLIST_IMPLANTACAO = {
+  ARQ: [
+    { id:'imp_arq1', label:'Projeto de Locação / Situação / Localização' },
+    { id:'imp_arq2', label:'Projeto de Urbanização e Acessibilidade' },
+    { id:'imp_arq3', label:'Projeto arquitetônico — RRT' },
+    { id:'imp_arq4', label:'Projeto arquitetônico — Memorial Descritivo' },
+    { id:'imp_arq5', label:'Projeto arquitetônico — Orçamento/Lista de materiais' }
+  ],
+  HS: [
+    { id:'imp_hs1', label:'Projeto de Drenagem — Pranchas Gráficas' },
+    { id:'imp_hs2', label:'Projeto de alimentação hidráulica (castelo/poço) — Pranchas Gráficas' },
+    { id:'imp_hs3', label:'Projeto Sanitário (fossa/ETE etc.) — Pranchas Gráficas' },
+    { id:'imp_hs4', label:'Projeto Hidrossanitário — ART' },
+    { id:'imp_hs5', label:'Projeto Hidrossanitário — Memorial Descritivo' },
+    { id:'imp_hs6', label:'Projeto Hidrossanitário — Orçamento/Lista de materiais' }
+  ],
+  ELE: [
+    { id:'imp_ele1', label:'Projeto de distribuição (subestação/iluminação pública) — Pranchas Gráficas' },
+    { id:'imp_ele2', label:'Projeto Elétrico — ART' },
+    { id:'imp_ele3', label:'Projeto Elétrico — Memorial Descritivo' },
+    { id:'imp_ele4', label:'Projeto Elétrico — Orçamento/Lista de materiais' },
+    { id:'imp_ele5', label:'Projeto Elétrico — Aprovação da Concessionária' }
+  ],
+  LOG: [
+    { id:'imp_log1', label:'Projeto de Lógica (interligação de blocos com CTIC) — Pranchas Gráficas' },
+    { id:'imp_log2', label:'Projeto de Lógica — ART' },
+    { id:'imp_log3', label:'Projeto de Lógica — Memorial Descritivo' },
+    { id:'imp_log4', label:'Projeto de Lógica — Orçamento/Lista de materiais' }
+  ],
+  CIP: [
+    { id:'imp_cip1', label:'Projeto de CIP (ligação castelo/hidrantes) — Pranchas Gráficas' },
+    { id:'imp_cip2', label:'Projeto de CIP — ART' },
+    { id:'imp_cip3', label:'Projeto de CIP — Memorial Descritivo' },
+    { id:'imp_cip4', label:'Projeto de CIP — Orçamento/Lista de materiais' },
+    { id:'imp_cip5', label:'Projeto de CIP — Aprovação CBMMA' }
+  ],
+  ORC: [
+    { id:'imp_orc1', label:'Orçamento final e cronograma consolidado' }
+  ]
+};
+
+// ============================================================
+// SERVIDORES NJP
+// ============================================================
+const njpServidores = [
+  { id:1, nome:'Paula Palmeira Alves', iniciais:'PA', cargo:'Arquiteta e Urbanista', disciplinas:['ARQ'], cor:'#2563EB', ehArqUrbProjetos:true, limite:2, capacidade:2 },
+  { id:2, nome:'Emanuele Silva', iniciais:'ES', cargo:'Técnica em Edificações · Orçamentação', disciplinas:['ORC','EST'], cor:'#7C3AED', ehArqUrbProjetos:false, limite:0, capacidade:5 },
+  { id:3, nome:'Ramom Luiz Ribeiro', iniciais:'RP', cargo:'Arquiteto e Urbanista · Gestão Contratual', disciplinas:['ARQ'], cor:'#D97706', ehArqUrbProjetos:true, limite:2, capacidade:2 },
+  { id:4, nome:'Allan Almeida Bastos', iniciais:'AA', cargo:'Tecnólogo em Edificações', disciplinas:['EST','ORC'], cor:'#059669', ehArqUrbProjetos:false, limite:0, capacidade:3 },
+  { id:5, nome:'Carlos Mendes Lira', iniciais:'CL', cargo:'Engenheiro Civil · Estrutural', disciplinas:['EST'], cor:'#0891B2', ehArqUrbProjetos:false, limite:0, capacidade:4 },
+  { id:6, nome:'Fernanda Costa Melo', iniciais:'FM', cargo:'Engenheira Civil · Hidrossanitário', disciplinas:['HS'], cor:'#0F766E', ehArqUrbProjetos:false, limite:0, capacidade:4 },
+  { id:7, nome:'João Vitor Andrade', iniciais:'JA', cargo:'Engenheiro Elétrico', disciplinas:['ELE'], cor:'#B45309', ehArqUrbProjetos:false, limite:0, capacidade:4 },
+  { id:8, nome:'Patrícia Sousa Lima', iniciais:'PL', cargo:'Engenheira de Telecomunicações · Lógica', disciplinas:['LOG'], cor:'#7C3AED', ehArqUrbProjetos:false, limite:0, capacidade:4 },
+  { id:9, nome:'Ricardo Souza Nunes', iniciais:'RN', cargo:'Engenheiro de Segurança · CIP', disciplinas:['CIP'], cor:'#DC2626', ehArqUrbProjetos:false, limite:0, capacidade:4 },
+  { id:10, nome:'Mariana Vaz Torres', iniciais:'MV', cargo:'Engenheira Mecânica · Climatização', disciplinas:['CLI'], cor:'#9333EA', ehArqUrbProjetos:false, limite:0, capacidade:3 }
+];
+
+// ============================================================
+// DADOS: PROCESSOS SUAP
+// Cada processo tem demandas[] — uma por especialidade.
+// Cada demanda tem servidor, checklist[], status.
+// ============================================================
+// Um processo de Edificação percorre as fases próprias da disciplina E as fases
+// de Implantação da mesma disciplina (quando existirem); um processo somente de
+// Implantação percorre apenas as fases inerentes a ele.
+function checklistDefsForTipo(tipo, disc) {
+  const edif = CHECKLIST_EDIFICACAO[disc] || [];
+  const impl = CHECKLIST_IMPLANTACAO[disc] || [];
+  return tipo === 'edificacao' ? edif.concat(impl) : impl;
+}
+function mkChecklist(tipo, disc) {
+  return checklistDefsForTipo(tipo, disc).map(c => ({ id: c.id, status: 'pendente', doc: null, impedimento: null }));
+}
+
+let processos = [
+  {
+    id: 101,
+    nome: 'Restaurante Estudantil · Campus Porto Franco',
+    origem: 'Campus Porto Franco',
+    nup: '23249.031200.2026-14',
+    tipo: 'edificacao',
+    prioridade: 'Alta',
+    prazo: '2026-10-31',
+    dataEntrada: '15/Jul/2026',
+    descricao: 'Projeto expandido: refeitório + quadra poliesportiva. Prazo crítico: outubro/2026.',
+    demandas: [
+      { id:'d101_ARQ', disc:'ARQ', servidor:1, status:'Em execução', checklist: [
+        {id:'arq1',status:'concluido',doc:'Prancha ARQ-01/2026'},{id:'arq2',status:'concluido',doc:'RRT 456789'},
+        {id:'arq3',status:'em_andamento',doc:null},{id:'arq4',status:'pendente',doc:null},
+        {id:'imp_arq1',status:'pendente',doc:null},{id:'imp_arq2',status:'pendente',doc:null},{id:'imp_arq3',status:'pendente',doc:null},{id:'imp_arq4',status:'pendente',doc:null},{id:'imp_arq5',status:'pendente',doc:null}
+      ], deliberacao:{ justificativa:'Porto Franco é prioridade pela determinação da Reitoria (Of. 28/2026).', por:'Walterney Pereira', em:'01/Set/2026' }},
+      { id:'d101_EST', disc:'EST', servidor:5, status:'Em execução', checklist: [
+        {id:'est1',status:'em_andamento',doc:null},{id:'est2',status:'pendente',doc:null},{id:'est3',status:'pendente',doc:null},{id:'est4',status:'pendente',doc:null}
+      ], deliberacao:null },
+      { id:'d101_HS',  disc:'HS',  servidor:6, status:'Em execução', checklist: [
+        {id:'hs1',status:'em_andamento',doc:null},{id:'hs2',status:'pendente',doc:null},{id:'hs3',status:'pendente',doc:null},{id:'hs4',status:'pendente',doc:null},{id:'hs5',status:'pendente',doc:null},{id:'hs6',status:'pendente',doc:null},{id:'hs7',status:'pendente',doc:null},
+        {id:'imp_hs1',status:'pendente',doc:null},{id:'imp_hs2',status:'pendente',doc:null},{id:'imp_hs3',status:'pendente',doc:null},{id:'imp_hs4',status:'pendente',doc:null},{id:'imp_hs5',status:'pendente',doc:null},{id:'imp_hs6',status:'pendente',doc:null}
+      ], deliberacao:null },
+      { id:'d101_ELE', disc:'ELE', servidor:7, status:'Aguardando atribuição', checklist: mkChecklist('edificacao','ELE'), deliberacao:null },
+      { id:'d101_LOG', disc:'LOG', servidor:null, status:'Aguardando atribuição', checklist: mkChecklist('edificacao','LOG'), deliberacao:null },
+      { id:'d101_CIP', disc:'CIP', servidor:null, status:'Aguardando atribuição', checklist: mkChecklist('edificacao','CIP'), deliberacao:null },
+      { id:'d101_CLI', disc:'CLI', servidor:null, status:'Aguardando atribuição', checklist: mkChecklist('edificacao','CLI'), deliberacao:null }
+    ]
+  },
+  {
+    id: 102,
+    nome: 'Quadra Poliesportiva · Campus Norte',
+    origem: 'Campus Norte',
+    nup: '23249.088112.2026-11',
+    tipo: 'implantacao',
+    prioridade: 'Média',
+    prazo: '2026-11-30',
+    dataEntrada: '10/Ago/2026',
+    descricao: 'Projeto de implantação da quadra poliesportiva. Levantamento de campo concluído.',
+    demandas: [
+      { id:'d102_ARQ', disc:'ARQ', servidor:3, status:'Em execução', checklist: [
+        {id:'imp_arq1',status:'concluido',doc:'Prancha Loc/01'},{id:'imp_arq2',status:'concluido',doc:'Prancha Urb/01'},
+        {id:'imp_arq3',status:'em_andamento',doc:null},{id:'imp_arq4',status:'pendente',doc:null},{id:'imp_arq5',status:'pendente',doc:null}
+      ], deliberacao:null },
+      { id:'d102_HS',  disc:'HS',  servidor:6, status:'Aguardando atribuição', checklist: mkChecklist('implantacao','HS'), deliberacao:null },
+      { id:'d102_ELE', disc:'ELE', servidor:7, status:'Em execução', checklist: [
+        {id:'imp_ele1',status:'em_andamento',doc:null},{id:'imp_ele2',status:'pendente',doc:null},{id:'imp_ele3',status:'pendente',doc:null},{id:'imp_ele4',status:'pendente',doc:null},{id:'imp_ele5',status:'pendente',doc:null}
+      ], deliberacao:null },
+      { id:'d102_CIP', disc:'CIP', servidor:null, status:'Aguardando atribuição', checklist: mkChecklist('implantacao','CIP'), deliberacao:null },
+      { id:'d102_ORC', disc:'ORC', servidor:2,    status:'Em execução', checklist: [
+        {id:'imp_orc1',status:'em_andamento',doc:null}
+      ], deliberacao:null }
+    ]
+  },
+  {
+    id: 103,
+    nome: 'Reforma Banheiros · Campus Caxias',
+    origem: 'Campus Caxias',
+    nup: '',
+    tipo: 'edificacao',
+    prioridade: 'Baixa',
+    prazo: '2026-11-30',
+    dataEntrada: '03/Set/2026',
+    descricao: 'Reforma completa dos banheiros do bloco A. Aguarda distribuição de especialidades.',
+    demandas: [
+      { id:'d103_ARQ', disc:'ARQ', servidor:null, status:'Aguardando atribuição', checklist: mkChecklist('edificacao','ARQ'), deliberacao:null },
+      { id:'d103_HS',  disc:'HS',  servidor:null, status:'Aguardando atribuição', checklist: mkChecklist('edificacao','HS'), deliberacao:null },
+      { id:'d103_ELE', disc:'ELE', servidor:null, status:'Aguardando atribuição', checklist: mkChecklist('edificacao','ELE'), deliberacao:null }
+    ]
+  }
+];
+
+// ============================================================
+// ESTADO GLOBAL
+// ============================================================
+let currentView = 'dashboard';
+let currentRole = 'Gerencial';
+let expandedProcId = null;
+let atribuirCtx = null; // { procId, disc }
+let redistCtx = null;   // servId
+let redistQueue = [];
+let impedimentoCtx = null; // { procId, disc, itemId }
+let concluirCtx = null;    // { procId, disc, itemId }
+let selectedServer = null;
+let selectedDiscs = {};   // { disc: true/false }
+
+// ============================================================
+// HELPERS
+// ============================================================
+function getServidor(id) { return njpServidores.find(s => s.id === id); }
+function getDemanda(procId, disc) {
+  const p = processos.find(x => x.id === procId);
+  return p ? p.demandas.find(d => d.disc === disc) : null;
+}
+function getDemandaById(demId) {
+  for (const p of processos) {
+    const d = p.demandas.find(x => x.id === demId);
+    if (d) return { proc: p, demanda: d };
+  }
+  return null;
+}
+function getDemandasByServidor(servId) {
+  const result = [];
+  for (const p of processos) {
+    for (const d of p.demandas) {
+      if (d.servidor === servId && d.status !== 'Concluída') {
+        result.push({ proc: p, demanda: d });
+      }
+    }
+  }
+  return result;
+}
+// Conta demandas ARQ ativas do servidor (para regra de limite)
+function getDemandasProjetosAtivas(servId) {
+  return getDemandasByServidor(servId).filter(x => ['ARQ'].includes(x.demanda.disc));
+}
+function servidorNoLimite(servId) {
+  const s = getServidor(servId);
+  if (!s || !s.ehArqUrbProjetos || s.limite === 0) return false;
+  return getDemandasProjetosAtivas(servId).length >= s.limite;
+}
+function progressoDemanda(dem) {
+  const total = dem.checklist.length;
+  const done = dem.checklist.filter(c => c.status === 'concluido').length;
+  return total > 0 ? Math.round((done / total) * 100) : 0;
+}
+function statusDemanda(dem) {
+  if (dem.status === 'Aguardando atribuição') return 'Aguardando atribuição';
+  if (dem.checklist.some(c => c.status === 'bloqueado')) return 'Bloqueada';
+  if (dem.checklist.every(c => c.status === 'concluido')) return 'Concluída';
+  return 'Em execução';
+}
+function statusProcesso(proc) {
+  const statuses = proc.demandas.map(d => statusDemanda(d));
+  if (statuses.some(s => s === 'Bloqueada')) return 'Bloqueada';
+  if (statuses.every(s => s === 'Concluída')) return 'Concluída';
+  if (statuses.some(s => s === 'Aguardando atribuição')) return 'Parcial';
+  return 'Em Execução';
+}
+function prioColor(p) { return p==='Alta'?'badge-red':p==='Média'?'badge-amber':'badge-gray'; }
+function prioChip(p) { return p==='Alta'?'chip-red':p==='Média'?'chip-amber':'chip-gray'; }
+
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
+const VIEWS = {
+  dashboard: ['Dashboard Executivo','Visão macro da infraestrutura institucional.'],
+  njp: ['Gestão NJP','Processos SUAP · Especialidades · Checklists de Entregáveis'],
+  servidores: ['Servidores & Carga de Trabalho','Capacidade instalada por servidor e disciplina.'],
+  gantt: ['Gantt de Projetos','Cronograma visual de processos e especialidades por servidor — visão da chefia.']
+};
+function goView(v) {
+  currentView = v;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const items = document.querySelectorAll('.nav-item');
+  if (v==='dashboard') items[0].classList.add('active');
+  else if (v==='njp') items[1].classList.add('active');
+  else if (v==='servidores') items[2].classList.add('active');
+  else if (v==='gantt') items[3].classList.add('active');
+  document.getElementById('topbarTitle').textContent = VIEWS[v][0];
+  document.getElementById('topbarSub').textContent = VIEWS[v][1];
+  render();
+}
+function changeRole(r) {
+  currentRole = r;
+  const map = {
+    Gerencial: ['WP','Walterney Pereira','Chefe NJP · DINFRA'],
+    'Estratégico': ['RE','Reitoria IFMA','Perfil Estratégico'],
+    Alimentador: ['ST','Servidor Técnico','Alimentador Técnico']
+  };
+  const m = map[r] || map.Gerencial;
+  document.getElementById('sidebarAvatar').textContent = m[0];
+  document.getElementById('sidebarName').textContent = m[1];
+  document.getElementById('sidebarRole').textContent = m[2];
+  render();
+}
+function updateBadges() {
+  let aguardando = 0;
+  for (const p of processos) {
+    for (const d of p.demandas) {
+      if (d.status === 'Aguardando atribuição') aguardando++;
+    }
+  }
+  document.getElementById('njpBadge').textContent = aguardando;
+}
+
+// ============================================================
+// RENDER PRINCIPAL
+// ============================================================
+function render() {
+  const c = document.getElementById('mainContent');
+  if (currentView === 'dashboard') c.innerHTML = renderDashboard();
+  else if (currentView === 'njp') c.innerHTML = renderNJP();
+  else if (currentView === 'servidores') c.innerHTML = renderServidores();
+  else if (currentView === 'gantt') c.innerHTML = renderGantt();
+  updateBadges();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  let totalProc = processos.length;
+  let emExec = processos.filter(p => statusProcesso(p) === 'Em Execução').length;
+  let bloqueados = processos.filter(p => statusProcesso(p) === 'Bloqueada').length;
+  let aguardando = 0;
+  let concluidos = 0;
+  for (const p of processos) {
+    for (const d of p.demandas) {
+      if (d.status === 'Aguardando atribuição') aguardando++;
+      if (statusDemanda(d) === 'Concluída') concluidos++;
+    }
+  }
+
+  return `
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#EFF4FF"><svg fill="none" stroke="var(--blue)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
+      <div><div class="stat-label">Processos SUAP</div><div class="stat-value" style="color:var(--blue)">${totalProc}</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--green-light)"><svg fill="none" stroke="var(--green)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <div><div class="stat-label">Em Execução</div><div class="stat-value" style="color:var(--green)">${emExec}</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--red-light)"><svg fill="none" stroke="var(--red)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+      <div><div class="stat-label">Bloqueados</div><div class="stat-value" style="color:var(--red)">${bloqueados}</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--teal-light)"><svg fill="none" stroke="var(--teal)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <div><div class="stat-label">Aguardando Atribuição</div><div class="stat-value" style="color:var(--teal)">${aguardando}</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--amber-light)"><svg fill="none" stroke="var(--amber)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+      <div><div class="stat-label">Servidores Ativos</div><div class="stat-value" style="color:var(--amber)">${njpServidores.length}</div></div>
+    </div>
+  </div>
+
+  <div class="section-hd"><div><h3>Processos em Andamento</h3><p>Resumo por processo com progresso das especialidades.</p></div><button class="btn btn-primary" onclick="goView('njp')">Ver Gestão NJP →</button></div>
+  ${processos.map(p => {
+    const st = statusProcesso(p);
+    const stBadge = st==='Bloqueada'?'badge-red':st==='Em Execução'?'badge-blue':st==='Concluída'?'badge-green':'badge-amber';
+    const totalDem = p.demandas.length;
+    const concl = p.demandas.filter(d => statusDemanda(d) === 'Concluída').length;
+    const pct = Math.round((concl/totalDem)*100);
+    return `
+    <div class="proc-detail-card" style="margin-bottom:12px">
+      <div style="padding:14px 18px;display:flex;align-items:center;gap:14px">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span class="badge ${stBadge}" style="font-size:10px">${st}</span>
+            <span class="badge ${prioColor(p.prioridade)}" style="font-size:10px">${p.prioridade}</span>
+            <span class="type-tag ${p.tipo==='edificacao'?'type-edi':'type-imp'}">${p.tipo==='edificacao'?'Edificação':'Implantação'}</span>
+          </div>
+          <div style="font-size:14px;font-weight:700">${p.nome}</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">${p.origem} · <span class="nup-chip">${p.nup||'Sem NUP'}</span></div>
+        </div>
+        <div style="text-align:right;min-width:80px">
+          <div style="font-size:22px;font-weight:800;color:var(--blue)">${pct}%</div>
+          <div style="font-size:10px;color:var(--text-muted)">${concl}/${totalDem} esp.</div>
+        </div>
+      </div>
+      <div style="width:calc(100% - 36px);margin:0 18px 12px;height:4px;background:var(--border);border-radius:99px">
+        <div style="width:${pct}%;height:100%;background:${pct===100?'var(--green)':pct>50?'var(--blue)':'var(--amber)'};border-radius:99px;transition:width 0.4s"></div>
+      </div>
+      <div style="padding:0 18px 14px;display:flex;gap:6px;flex-wrap:wrap">
+        ${p.demandas.map(d => {
+          const ds = statusDemanda(d);
+          const dc = DISCIPLINAS[d.disc];
+          const bg = ds==='Concluída'?'#ECFDF5':ds==='Bloqueada'?'#FEF2F2':ds==='Aguardando atribuição'?'#F0FDFA':'#EFF4FF';
+          const bc = ds==='Concluída'?'var(--green)':ds==='Bloqueada'?'var(--red)':ds==='Aguardando atribuição'?'var(--teal)':'var(--blue)';
+          return `<span style="padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;background:${bg};color:${bc};border:1px solid ${bc}40">${dc.iniciais}</span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('')}`;
+}
+
+// ============================================================
+// NJP — TELA PRINCIPAL
+// ============================================================
+function renderNJP() {
+  const isGerencial = currentRole === 'Gerencial';
+  let aguardando = 0;
+  let emExec = 0;
+  let bloqueadas = 0;
+  let concluidas = 0;
+  for (const p of processos) {
+    for (const d of p.demandas) {
+      const st = statusDemanda(d);
+      if (st === 'Aguardando atribuição') aguardando++;
+      else if (st === 'Bloqueada') bloqueadas++;
+      else if (st === 'Concluída') concluidas++;
+      else emExec++;
+    }
+  }
+
+  const semDelib = njpServidores.filter(s => {
+    if (!s.ehArqUrbProjetos || s.limite === 0) return false;
+    const ativas = getDemandasProjetosAtivas(s.id);
+    return ativas.length >= s.limite && !ativas.some(x => x.demanda.deliberacao);
+  });
+
+  return `
+  <div class="njp-banner">
+    <div class="njp-banner-left">
+      <div class="njp-banner-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M15 11l-3 3-1.5-1.5"/></svg></div>
+      <div>
+        <div class="njp-banner-title">Núcleo de Projetos — NJP</div>
+        <div class="njp-banner-sub">Processos SUAP · Distribuição por Especialidade · Checklists de Entregáveis</div>
+      </div>
+    </div>
+    ${isGerencial ? `<button class="btn" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.3);color:#fff;font-weight:700" onclick="openNovoProcesso()">+ Novo Processo SUAP</button>` : ''}
+  </div>
+
+  <div class="njp-stat-grid">
+    <div class="njp-stat"><div class="njp-stat-label">Processos SUAP</div><div class="njp-stat-value">${processos.length}</div><div class="njp-stat-sub">no portfólio</div></div>
+    <div class="njp-stat"><div class="njp-stat-label">Especialidades Pendentes</div><div class="njp-stat-value" style="color:var(--teal)">${aguardando}</div><div class="njp-stat-sub">aguardam atribuição</div></div>
+    <div class="njp-stat"><div class="njp-stat-label">Em Execução</div><div class="njp-stat-value" style="color:var(--blue)">${emExec}</div><div class="njp-stat-sub">com servidor ativo</div></div>
+    <div class="njp-stat"><div class="njp-stat-label">Bloqueadas</div><div class="njp-stat-value" style="color:var(--red)">${bloqueadas}</div><div class="njp-stat-sub">com impedimento</div></div>
+    <div class="njp-stat"><div class="njp-stat-label">Concluídas</div><div class="njp-stat-value" style="color:var(--green)">${concluidas}</div><div class="njp-stat-sub">entregáveis ok</div></div>
+  </div>
+
+  ${semDelib.length && isGerencial ? `
+  <div class="alert-strip-amber">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    <div><strong>${semDelib.map(s=>s.nome.split(' ')[0]).join(', ')} atingiu o limite de processos sem deliberação de prioridade.</strong>
+    <p>O servidor não tem autorização formal para priorizar nenhum processo sem esta decisão do Chefe NJP.</p></div>
+  </div>` : ''}
+
+  <!-- PROCESSOS SUAP -->
+  <div class="section-hd"><div><h3>Processos SUAP · Especialidades</h3><p>Cada processo é dividido por disciplina técnica. Clique para ver o checklist de cada especialidade.</p></div></div>
+  ${processos.map(p => renderProcessoCard(p, isGerencial)).join('')}`;
+}
+
+function renderProcessoCard(p, isGerencial) {
+  const isOpen = expandedProcId === p.id;
+  const st = statusProcesso(p);
+  const stBadge = st==='Bloqueada'?'badge-red':st==='Em Execução'?'badge-blue':st==='Concluída'?'badge-green':'badge-amber';
+  const totalDem = p.demandas.length;
+  const concl = p.demandas.filter(d => statusDemanda(d) === 'Concluída').length;
+
+  return `
+  <div class="proc-detail-card">
+    <div class="proc-detail-hd" onclick="toggleProc(${p.id})">
+      <div class="proc-detail-left">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+            <span class="type-tag ${p.tipo==='edificacao'?'type-edi':'type-imp'}">${p.tipo==='edificacao'?'🏢 Edificação':'🏗 Implantação'}</span>
+            <span class="badge ${stBadge}" style="font-size:10px">${st}</span>
+            <span class="badge ${prioColor(p.prioridade)}" style="font-size:10px">${p.prioridade}</span>
+          </div>
+          <div class="proc-title">${p.nome}</div>
+          <div class="proc-meta">
+            <span>${p.origem}</span>
+            ${p.nup ? `<span class="nup-chip">${p.nup}</span>` : '<span class="chip-sm chip-amber" style="font-size:9px">Sem NUP</span>'}
+            <span>Entrada: ${p.dataEntrada}</span>
+            ${p.prazo ? `<span style="color:${p.prioridade==='Alta'?'var(--red)':'var(--text-secondary)'}">Prazo: ${p.prazo}</span>` : ''}
+            <span style="color:var(--text-muted)">${concl}/${totalDem} especialidades concluídas</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;gap:4px">
+          ${p.demandas.map(d => {
+            const ds = statusDemanda(d);
+            const dc = DISCIPLINAS[d.disc];
+            const bg = ds==='Concluída'?dc.cor:ds==='Bloqueada'?'#DC2626':ds==='Aguardando atribuição'?'#94A3B8':'#CBD5E1';
+            return `<div title="${dc.nome}: ${ds}" style="width:10px;height:10px;border-radius:2px;background:${bg}"></div>`;
+          }).join('')}
+        </div>
+        <svg class="chevron ${isOpen?'open':''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+    </div>
+    ${isOpen ? `
+    <div class="proc-detail-body">
+      <div style="font-size:12px;color:var(--text-secondary);background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:16px">${p.descricao}</div>
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:12px">Especialidades do Processo</div>
+      <div class="esp-grid">
+        ${p.demandas.map(d => renderEspCard(p, d, isGerencial)).join('')}
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+function renderEspCard(proc, dem, isGerencial) {
+  const disc = DISCIPLINAS[dem.disc];
+  const st = statusDemanda(dem);
+  const serv = dem.servidor ? getServidor(dem.servidor) : null;
+  const pct = progressoDemanda(dem);
+  const stChip = st==='Concluída'?'chip-green':st==='Bloqueada'?'chip-red':st==='Aguardando atribuição'?'chip-teal':'chip-blue';
+  const progColor = pct===100?'var(--green)':pct>50?'var(--blue)':'var(--amber)';
+
+  const checkDef = checklistDefsForTipo(proc.tipo, dem.disc);
+
+  const checklistHtml = checkDef.map(def => {
+    const item = dem.checklist.find(c => c.id === def.id) || { status: 'pendente', doc: null };
+    const isDone = item.status === 'concluido';
+    const isBloc = item.status === 'bloqueado';
+    const canAct = isGerencial || currentRole === 'Alimentador';
+    return `
+    <div class="esp-check-item">
+      <div class="esp-check-box ${isDone?'done':isBloc?'blocked':''}" onclick="${canAct && !isDone && !isBloc ? `openConcluirItem(${proc.id},'${dem.disc}','${def.id}')` : ''}">
+        ${isDone ? `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>` : isBloc ? '!' : ''}
+      </div>
+      <span class="esp-check-label ${isDone?'done':''}">${def.label}</span>
+      ${item.doc ? `<span class="esp-check-doc">${item.doc}</span>` : ''}
+      ${canAct && !isDone && !isBloc && dem.servidor ? `
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button class="btn" style="padding:2px 6px;font-size:9px;background:var(--green-light);border-color:var(--green-mid);color:var(--green)" onclick="openConcluirItem(${proc.id},'${dem.disc}','${def.id}')">✓</button>
+          <button class="btn" style="padding:2px 6px;font-size:9px;background:var(--red-light);border-color:var(--red-mid);color:var(--red)" onclick="openImpedimento(${proc.id},'${dem.disc}','${def.id}')">!</button>
+        </div>` : ''}
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="esp-card">
+    <div class="esp-card-header">
+      <div class="esp-disc-badge" style="background:${disc.cor}">${disc.iniciais}</div>
+      <div class="esp-card-info">
+        <div class="esp-card-disc">${disc.nome}</div>
+        <div class="esp-card-proc" title="${serv ? serv.nome : 'Sem atribuição'}">${serv ? serv.nome.split(' ')[0]+' '+serv.nome.split(' ')[1] : '— Sem atribuição'}</div>
+      </div>
+      <span class="chip-sm ${stChip}" style="flex-shrink:0">${st==='Aguardando atribuição'?'Pendente':st}</span>
+    </div>
+    <div class="esp-card-status-row">
+      <span style="font-size:10px;font-weight:700;color:${progColor}">${pct}% concluído</span>
+      ${isGerencial && st === 'Aguardando atribuição' ? `<button class="btn btn-teal" style="font-size:10px;padding:3px 8px" onclick="event.stopPropagation();openAtribuir(${proc.id},'${dem.disc}')">Atribuir Servidor</button>` : ''}
+      ${isGerencial && st !== 'Aguardando atribuição' ? `<button class="btn btn-ghost" style="font-size:10px;padding:3px 8px" onclick="event.stopPropagation();openAtribuir(${proc.id},'${dem.disc}')">Trocar Servidor</button>` : ''}
+    </div>
+    <div class="esp-progress-bar"><div class="esp-progress-fill" style="width:${pct}%;background:${progColor}"></div></div>
+    ${dem.servidor || isGerencial ? `<div class="esp-checklist-wrap">${checklistHtml}</div>` : `<div style="padding:10px 16px 12px;font-size:11px;color:var(--text-muted);text-align:center">Atribua um servidor para ver o checklist.</div>`}
+    ${dem.deliberacao ? `<div style="margin:0 16px 12px;background:var(--amber-light);border:1px solid var(--amber-mid);border-radius:6px;padding:8px 10px;font-size:10px;color:#78350F"><strong>Deliberação:</strong> ${dem.deliberacao.justificativa} <span style="opacity:0.7">— ${dem.deliberacao.por}, ${dem.deliberacao.em}</span></div>` : ''}
+  </div>`;
+}
+
+// ============================================================
+// SERVIDORES
+// ============================================================
+function renderServidores() {
+  const isGerencial = currentRole === 'Gerencial';
+  return `
+  <div class="section-hd"><div><h3>Painel de Carga por Servidor</h3><p>Arquitetos e Urbanistas com atribuição de projetos têm limite configurável. O Chefe NJP pode ajustar o limite.</p></div></div>
+  <div class="njp-servers-grid">
+    ${njpServidores.map(s => {
+      const todas = getDemandasByServidor(s.id);
+      const projetosAtivos = getDemandasProjetosAtivas(s.id);
+      const cap = s.ehArqUrbProjetos && s.limite > 0 ? s.limite : s.capacidade;
+      const pct = Math.min(100, Math.round((todas.length / cap) * 100));
+      const cor = pct >= 100 ? '#DC2626' : pct >= 60 ? '#D97706' : '#059669';
+      const full = s.ehArqUrbProjetos && s.limite > 0 && projetosAtivos.length >= s.limite;
+      const precisaDelib = full && projetosAtivos.length > 1 && !projetosAtivos.some(x => x.demanda.deliberacao);
+
+      return `
+      <div class="njp-server-card">
+        <div class="njp-server-header">
+          <div class="njp-server-av" style="background:${s.cor}">${s.iniciais}</div>
+          <div class="njp-server-info">
+            <div class="njp-server-name">${s.nome}</div>
+            <div class="njp-server-role">${s.cargo}</div>
+            ${s.ehArqUrbProjetos ? `<span class="chip-sm chip-blue" style="margin-top:4px">Arq/Urb · Limite: ${s.limite} projeto(s) ${isGerencial?`<span onclick="editLimite(${s.id})" style="cursor:pointer;text-decoration:underline;margin-left:4px">editar</span>`:''}` : ''}
+            <span style="font-size:10px;color:var(--text-muted);margin-top:2px">Disciplinas: ${s.disciplinas.join(', ')}</span>
+          </div>
+          <div class="njp-server-capacity">
+            <div class="njp-cap-num" style="color:${cor}">${todas.length}/${cap}</div>
+            <div class="njp-cap-label">demandas</div>
+          </div>
+        </div>
+        <div class="njp-server-bar"><div class="njp-server-bar-fill" style="width:${pct}%;background:${cor}"></div></div>
+        <div class="njp-server-body">
+          ${todas.length > 0 ? todas.map((x, i) => {
+            const disc = DISCIPLINAS[x.demanda.disc];
+            const p = progressoDemanda(x.demanda);
+            return `
+            <div class="njp-proc-item">
+              <div class="njp-proc-rank r${Math.min(i+1,3)}">${i+1}°</div>
+              <div style="flex:1;min-width:0">
+                <div class="njp-proc-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.proc.nome}</div>
+                <div class="njp-proc-fase"><span style="font-size:9px;font-weight:700;color:${disc.cor};background:${disc.cor}20;padding:1px 5px;border-radius:3px">${disc.iniciais}</span> · ${p}% · ${x.proc.prazo||'—'}</div>
+              </div>
+            </div>`;
+          }).join('') : `<div style="font-size:11px;color:var(--text-muted);padding:10px 0;text-align:center">Nenhuma demanda ativa</div>`}
+          ${full ? `<div class="njp-cap-warning"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>Limite atingido — próxima demanda de projeto entra em espera.</span></div>` : s.ehArqUrbProjetos ? `<div class="njp-cap-ok"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>${s.limite - projetosAtivos.length} slot(s) disponível(is) para projetos.</span></div>` : ''}
+          ${precisaDelib && isGerencial ? `
+          <div class="njp-delib-needed">
+            <div class="njp-delib-hd"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>Deliberação de Fila Pendente</div>
+            <p style="font-size:11px;color:#78350F;margin-bottom:8px">${projetosAtivos.length} processos de projeto ativos sem ordem formal de prioridade.</p>
+            <button class="btn btn-primary" style="font-size:11px;width:100%" onclick="openRedistribuir(${s.id})">Deliberar Fila Agora</button>
+          </div>` : isGerencial && todas.length > 1 ? `<button class="btn btn-outline-blue" style="font-size:11px;width:100%;margin-top:8px" onclick="openRedistribuir(${s.id})">Reordenar Fila</button>` : ''}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ============================================================
+// MODAIS — NOVO PROCESSO
+// ============================================================
+let selectedDiscsList = {};
+function openNovoProcesso() {
+  selectedDiscsList = {};
+  document.getElementById('np_nome').value = '';
+  document.getElementById('np_origem').value = '';
+  document.getElementById('np_nup').value = '';
+  document.getElementById('np_prazo').value = '';
+  document.getElementById('np_prioridade').value = 'Média';
+  document.getElementById('np_tipo').value = 'edificacao';
+  renderDiscPicker();
+  document.getElementById('modalNovoProcesso').classList.add('open');
+}
+function renderDiscPicker() {
+  const tipo = document.getElementById('np_tipo').value;
+  const discsEdif = ['ARQ','EST','HS','ELE','LOG','CIP','CLI'];
+  const discsImpl = ['ARQ','HS','ELE','LOG','CIP','ORC'];
+  const lista = tipo === 'edificacao' ? discsEdif : discsImpl;
+
+  document.getElementById('disc_info').textContent = tipo==='edificacao'
+    ? 'Edificação inclui automaticamente todos os entregáveis de Implantação para ARQ, HS, ELE, LOG e CIP.'
+    : 'Somente Implantação: selecione as especialidades pertinentes.';
+
+  const html = lista.map(disc => {
+    const d = DISCIPLINAS[disc];
+    const isSel = selectedDiscsList[disc] === true;
+    const count = checklistDefsForTipo(tipo, disc).length;
+    return `
+    <div class="disc-pick-item ${isSel?'sel':''}" onclick="toggleDisc('${disc}')">
+      <div class="disc-pick-dot" style="background:${d.cor}">${d.iniciais}</div>
+      <div><div class="disc-pick-name">${d.nome}</div><div class="disc-pick-count">${count} entregável(is)</div></div>
+      ${isSel ? `<svg fill="none" stroke="var(--blue)" viewBox="0 0 24 24" style="width:16px;height:16px;margin-left:auto;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>` : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('nd_disc_picker').innerHTML = html;
+}
+function toggleDisc(disc) {
+  selectedDiscsList[disc] = !selectedDiscsList[disc];
+  renderDiscPicker();
+}
+function confirmNovoProcesso() {
+  const nome = document.getElementById('np_nome').value.trim();
+  const origem = document.getElementById('np_origem').value;
+  if (!nome || !origem) { showToast('Preencha o nome e a origem do processo.'); return; }
+  const tipo = document.getElementById('np_tipo').value;
+  const selecionados = Object.keys(selectedDiscsList).filter(d => selectedDiscsList[d]);
+  if (selecionados.length === 0) { showToast('Selecione ao menos uma especialidade.'); return; }
+
+  const demandas = selecionados.map(disc => ({
+    id: `d${Date.now()}_${disc}`,
+    disc,
+    servidor: null,
+    status: 'Aguardando atribuição',
+    checklist: mkChecklist(tipo, disc),
+    deliberacao: null
+  }));
+
+  processos.push({
+    id: Date.now(),
+    nome,
+    origem,
+    nup: document.getElementById('np_nup').value.trim(),
+    tipo,
+    prioridade: document.getElementById('np_prioridade').value,
+    prazo: document.getElementById('np_prazo').value || '',
+    dataEntrada: new Date().toLocaleDateString('pt-BR'),
+    descricao: document.getElementById('np_descricao').value.trim() || 'Sem descrição.',
+    demandas
+  });
+  closeModal('modalNovoProcesso');
+  showToast(`Processo "${nome}" registrado com ${selecionados.length} especialidade(s).`);
+  expandedProcId = processos[processos.length-1].id;
+  render();
+}
+
+// ============================================================
+// MODAIS — ATRIBUIR SERVIDOR
+// ============================================================
+function openAtribuir(procId, disc) {
+  atribuirCtx = { procId, disc };
+  selectedServer = null;
+  const d = DISCIPLINAS[disc];
+  document.getElementById('atrib_title').textContent = `Atribuir Servidor — ${d.nome}`;
+  document.getElementById('atrib_sub').textContent = `Processo: ${processos.find(p=>p.id===procId)?.nome || ''}`;
+  renderAtribPicker(disc);
+  document.getElementById('modalAtribuir').classList.add('open');
+}
+function renderAtribPicker(disc) {
+  // Mostra todos os servidores (prioriza os da disciplina mas não filtra)
+  const html = njpServidores.map(s => {
+    const todas = getDemandasByServidor(s.id);
+    const ehPrimaria = s.disciplinas.includes(disc);
+    const noLimite = servidorNoLimite(s.id) && ['ARQ'].includes(disc);
+    const isSel = selectedServer === s.id;
+    return `
+    <div class="server-pick-card ${noLimite&&!isSel?'full':isSel?'sel':''}" onclick="${noLimite?'':'selectAtribServer('+s.id+')'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="server-pick-name">${s.nome} ${ehPrimaria?'⭐':''}</div>
+          <div class="server-pick-cargo">${s.cargo}</div>
+        </div>
+        <div style="width:26px;height:26px;border-radius:7px;background:${s.cor};color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${s.iniciais}</div>
+      </div>
+      <div class="server-pick-cap" style="color:${noLimite?'#DC2626':todas.length>0?'#D97706':'#059669'}">${todas.length} demanda(s) ativa(s) ${noLimite?'— LIMITE ATINGIDO':''}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('atrib_server_picker').innerHTML = html;
+  renderAtribCapAlert();
+}
+function selectAtribServer(id) {
+  selectedServer = id;
+  const d = getDemanda(atribuirCtx.procId, atribuirCtx.disc);
+  renderAtribPicker(atribuirCtx.disc);
+}
+function renderAtribCapAlert() {
+  const el = document.getElementById('atrib_cap_alert');
+  if (!selectedServer) { el.innerHTML = ''; return; }
+  const s = getServidor(selectedServer);
+  if (s && s.ehArqUrbProjetos && servidorNoLimite(selectedServer)) {
+    el.innerHTML = `<div class="njp-cap-warning" style="margin-bottom:12px"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;color:var(--red)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span><strong>${s.nome}</strong> está no limite de ${s.limite} processos de projeto. Será necessário deliberar a fila de prioridade.</span></div>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+function confirmAtribuir() {
+  if (!selectedServer) { showToast('Selecione um servidor.'); return; }
+  const { procId, disc } = atribuirCtx;
+  const dem = getDemanda(procId, disc);
+  if (dem) {
+    dem.servidor = selectedServer;
+    dem.status = 'Em execução';
+  }
+  const s = getServidor(selectedServer);
+  closeModal('modalAtribuir');
+  showToast(`${DISCIPLINAS[disc].nome} atribuída a ${s ? s.nome : 'servidor'}.`);
+  render();
+}
+
+// ============================================================
+// MODAIS — DELIBERAR FILA
+// ============================================================
+function openRedistribuir(servId) {
+  redistCtx = servId;
+  const s = getServidor(servId);
+  redistQueue = getDemandasByServidor(servId).slice();
+  document.getElementById('redist_sub').textContent = `Servidor: ${s?.nome || ''}`;
+  document.getElementById('redist_justif').value = '';
+  renderRedistQueue();
+  document.getElementById('modalRedistribuir').classList.add('open');
+}
+function renderRedistQueue() {
+  const html = redistQueue.map((x, i) => {
+    const cls = i===0?'priority':i===1?'secondary':'';
+    const posCls = i===0?'pos1':i===1?'pos2':'';
+    const disc = DISCIPLINAS[x.demanda.disc];
+    return `
+    <div class="queue-reorder-item ${cls}">
+      <div class="queue-pos ${posCls}">${i+1}°</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.proc.nome}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px"><span style="font-size:9px;font-weight:700;color:${disc.cor};background:${disc.cor}20;padding:1px 4px;border-radius:3px">${disc.iniciais}</span> · ${x.proc.nup||'Sem NUP'}</div>
+      </div>
+      <div class="queue-move-btns">
+        ${i>0?`<button class="queue-move-btn" onclick="moveQueue(${i},-1)">▲</button>`:''}
+        ${i<redistQueue.length-1?`<button class="queue-move-btn" onclick="moveQueue(${i},1)">▼</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('redist_queue').innerHTML = html;
+}
+function moveQueue(idx, dir) {
+  const ni = idx + dir;
+  if (ni<0||ni>=redistQueue.length) return;
+  [redistQueue[idx],redistQueue[ni]] = [redistQueue[ni],redistQueue[idx]];
+  renderRedistQueue();
+}
+function confirmRedistribuir() {
+  const j = document.getElementById('redist_justif').value.trim();
+  if (!j || j.length < 20) { document.getElementById('redist_justif').style.borderColor='#DC2626'; return; }
+  const autor = document.getElementById('sidebarName').textContent;
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  redistQueue.forEach(x => {
+    x.demanda.deliberacao = { justificativa: j, por: autor, em: hoje };
+  });
+  closeModal('modalRedistribuir');
+  showToast(`Fila de ${getServidor(redistCtx)?.nome||''} reordenada e deliberação registrada.`);
+  render();
+}
+
+// ============================================================
+// MODAIS — CHECKLIST: CONCLUIR E IMPEDIMENTO
+// ============================================================
+function openConcluirItem(procId, disc, itemId) {
+  concluirCtx = { procId, disc, itemId };
+  const checkDef = getCheckDef(procId, disc, itemId);
+  document.getElementById('conc_sub').textContent = checkDef ? checkDef.label : itemId;
+  document.getElementById('conc_doc').value = '';
+  document.getElementById('modalConcluir').classList.add('open');
+}
+function confirmConcluir() {
+  const doc = document.getElementById('conc_doc').value.trim();
+  const { procId, disc, itemId } = concluirCtx;
+  const dem = getDemanda(procId, disc);
+  if (dem) {
+    const item = dem.checklist.find(c => c.id === itemId);
+    if (item) { item.status = 'concluido'; item.doc = doc || null; }
+    if (dem.checklist.every(c => c.status === 'concluido')) dem.status = 'Concluída';
+  }
+  closeModal('modalConcluir');
+  showToast('Entregável marcado como concluído.');
+  render();
+}
+function openImpedimento(procId, disc, itemId) {
+  impedimentoCtx = { procId, disc, itemId };
+  const checkDef = getCheckDef(procId, disc, itemId);
+  document.getElementById('imp_sub').textContent = checkDef ? checkDef.label : itemId;
+  document.getElementById('imp_motivo').value = '';
+  document.getElementById('imp_doc').value = '';
+  document.getElementById('modalImpedimento').classList.add('open');
+}
+function confirmImpedimento() {
+  const motivo = document.getElementById('imp_motivo').value.trim();
+  if (!motivo) { showToast('Descreva o motivo do impedimento.'); return; }
+  const { procId, disc, itemId } = impedimentoCtx;
+  const dem = getDemanda(procId, disc);
+  if (dem) {
+    const item = dem.checklist.find(c => c.id === itemId);
+    if (item) { item.status = 'bloqueado'; item.impedimento = motivo; item.doc = document.getElementById('imp_doc').value.trim() || null; }
+    dem.status = 'Bloqueada';
+  }
+  closeModal('modalImpedimento');
+  showToast('Impedimento registrado.');
+  render();
+}
+function getCheckDef(procId, disc, itemId) {
+  const proc = processos.find(p => p.id === procId);
+  if (!proc) return null;
+  return checklistDefsForTipo(proc.tipo, disc).find(c => c.id === itemId) || null;
+}
+
+// ============================================================
+// GANTT
+// ============================================================
+let ganttView = 'processos'; // 'processos' | 'servidores'
+
+// Fase (entregável) em que a demanda de um servidor está no momento —
+// usado no Gantt para a chefia ver em qual etapa cada servidor está.
+function faseAtualDemanda(proc, dem) {
+  if (dem.status === 'Aguardando atribuição') {
+    return { label: 'Aguardando atribuição de servidor', status: 'aguardando' };
+  }
+  const defs = checklistDefsForTipo(proc.tipo, dem.disc);
+  const findLabel = id => (defs.find(d => d.id === id) || {}).label || id;
+  const bloqueado = dem.checklist.find(c => c.status === 'bloqueado');
+  if (bloqueado) return { label: findLabel(bloqueado.id), status: 'bloqueado' };
+  const emAndamento = dem.checklist.find(c => c.status === 'em_andamento');
+  if (emAndamento) return { label: findLabel(emAndamento.id), status: 'em_andamento' };
+  const pendente = dem.checklist.find(c => c.status === 'pendente');
+  if (pendente) return { label: 'Próxima etapa: ' + findLabel(pendente.id), status: 'pendente' };
+  if (dem.checklist.length && dem.checklist.every(c => c.status === 'concluido')) {
+    return { label: 'Todos os entregáveis concluídos', status: 'concluido' };
+  }
+  return { label: '—', status: null };
+}
+
+// Meses do ano para a régua (Jan–Dez 2026)
+const GANTT_ANO = 2026;
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+function ganttPos(dateStr) {
+  // retorna posição [0,1] dentro do ano
+  if (!dateStr) return null;
+  const d = new Date(dateStr + (dateStr.length === 10 ? 'T12:00:00' : ''));
+  const inicio = new Date(GANTT_ANO, 0, 1);
+  const fim = new Date(GANTT_ANO + 1, 0, 1);
+  const t = Math.max(0, Math.min(1, (d - inicio) / (fim - inicio)));
+  return t;
+}
+
+function todayPos() {
+  return ganttPos(new Date().toISOString().slice(0, 10));
+}
+
+// Dado um processo, calcula data de início estimada (dataEntrada) e prazo
+function procDates(proc) {
+  // dataEntrada: DD/MMM/AAAA → parsear
+  let inicio = null;
+  if (proc.dataEntrada) {
+    const parts = proc.dataEntrada.split('/');
+    if (parts.length === 3) {
+      const mMap = {Jan:0,Fev:1,Mar:2,Abr:3,Mai:4,Jun:5,Jul:6,Ago:7,Set:8,Out:9,Nov:10,Dez:11};
+      const d = parseInt(parts[0]);
+      const m = mMap[parts[1]] ?? 0;
+      const a = parseInt(parts[2]);
+      inicio = `${a}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    }
+  }
+  return { inicio, fim: proc.prazo || null };
+}
+
+function renderGantt() {
+  const today = todayPos();
+  const todayPct = (today * 100).toFixed(2);
+
+  const html_processos = renderGanttProcessos(today, todayPct);
+  const html_servidores = renderGanttServidores(today, todayPct);
+
+  return `
+  <!-- TOOLBAR -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div>
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:2px">Gantt de Projetos · ${GANTT_ANO}</h3>
+      <p style="font-size:12px;color:var(--text-secondary)">Cronograma visual de processos e carga de servidores. A linha vermelha marca hoje.</p>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="gantt-view-btn ${ganttView==='processos'?'active':''}" onclick="setGanttView('processos')">Por Processo</button>
+      <button class="gantt-view-btn ${ganttView==='servidores'?'active':''}" onclick="setGanttView('servidores')">Por Servidor</button>
+    </div>
+  </div>
+
+  <!-- LEGENDA -->
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+    <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#2563EB"></div>Edificação</div>
+    <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#0D9488"></div>Implantação</div>
+    <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#059669"></div>Concluída</div>
+    <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#DC2626"></div>Bloqueada</div>
+    <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#94A3B8"></div>Aguardando</div>
+    <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#F1F5F9;border:1px solid #CBD5E1"></div>Sem prazo definido</div>
+  </div>
+
+  ${ganttView === 'processos' ? html_processos : html_servidores}`;
+}
+
+function renderGanttProcessos(today, todayPct) {
+  const headerMeses = MESES.map(m => `<div class="gantt-month-col">${m}</div>`).join('');
+
+  const rows = processos.map(proc => {
+    const { inicio, fim } = procDates(proc);
+    const pInicio = inicio ? ganttPos(inicio) : null;
+    const pFim = fim ? ganttPos(fim) : null;
+
+    // Cor e estilo da barra do processo
+    const corProc = proc.tipo === 'edificacao' ? '#2563EB' : '#0D9488';
+
+    // Barra do processo (linha de capa)
+    let procBarHtml = '';
+    if (pInicio !== null && pFim !== null) {
+      const left = (pInicio * 100).toFixed(2);
+      const width = Math.max(0.5, ((pFim - pInicio) * 100)).toFixed(2);
+      const pct = progressoProcesso(proc);
+      procBarHtml = `
+        <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${corProc};opacity:0.85" title="${proc.nome}: ${pct}% concluído">
+          ${parseFloat(width) > 8 ? pct+'%' : ''}
+        </div>
+        <div style="position:absolute;top:4px;height:16px;background:rgba(255,255,255,0.35);border-radius:4px 0 0 4px;left:${left}%;width:${(parseFloat(width)*(pct/100)).toFixed(2)}%;pointer-events:none"></div>`;
+    } else {
+      procBarHtml = `<div style="position:absolute;top:8px;left:2%;right:2%;height:8px;background:var(--border);border-radius:99px;opacity:0.6"></div>`;
+    }
+
+    // Linha de hoje
+    const todayLine = `<div class="gantt-today" style="left:${todayPct}%"></div>`;
+
+    // Linhas de especialidades
+    const discRows = proc.demandas.map(dem => {
+      const disc = DISCIPLINAS[dem.disc];
+      const st = statusDemanda(dem);
+      const pct = progressoDemanda(dem);
+      const servNome = dem.servidor ? (getServidor(dem.servidor)?.nome.split(' ')[0] + ' ' + (getServidor(dem.servidor)?.nome.split(' ')[1]||'')) : '—';
+      const fase = faseAtualDemanda(proc, dem);
+
+      // Cor da barra por status
+      let barCor = disc.cor;
+      if (st === 'Concluída') barCor = '#059669';
+      else if (st === 'Bloqueada') barCor = '#DC2626';
+      else if (st === 'Aguardando atribuição') barCor = '#94A3B8';
+
+      // Posição: herda do processo, ajusta por progresso
+      let discBarHtml = '';
+      if (pInicio !== null && pFim !== null) {
+        const left = (pInicio * 100).toFixed(2);
+        const width = Math.max(0.5, ((pFim - pInicio) * 100)).toFixed(2);
+        const fillW = (parseFloat(width) * (pct / 100)).toFixed(2);
+        discBarHtml = `
+          <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${barCor};opacity:${st==='Aguardando atribuição'?0.4:0.8}" title="${disc.nome} · ${servNome} — Fase atual: ${fase.label} (${pct}% concluído)">
+            ${parseFloat(width) > 10 ? (pct>0?pct+'%':'') : ''}
+          </div>
+          ${pct > 0 ? `<div style="position:absolute;top:4px;height:16px;background:rgba(255,255,255,0.4);border-radius:4px 0 0 4px;left:${left}%;width:${fillW}%;pointer-events:none"></div>` : ''}
+          <div class="gantt-today" style="left:${todayPct}%"></div>`;
+      } else {
+        discBarHtml = `<div class="gantt-today" style="left:${todayPct}%"></div>`;
+      }
+
+      return `
+      <div class="gantt-disc-row">
+        <div class="gantt-disc-label">
+          <div class="gantt-disc-label-row">
+            <div style="width:8px;height:8px;border-radius:2px;background:${barCor};flex-shrink:0"></div>
+            <div class="gantt-disc-label-text">${disc.iniciais} · ${servNome}</div>
+            <span style="margin-left:auto;font-size:9px;font-weight:700;color:${barCor}">${pct}%</span>
+          </div>
+          <div class="gantt-disc-fase" title="${fase.label}">${fase.label}</div>
+        </div>
+        <div class="gantt-disc-timeline">${discBarHtml}</div>
+      </div>`;
+    }).join('');
+
+    const stLabel = statusProcesso(proc);
+    const stC = stLabel==='Bloqueada'?'#DC2626':stLabel==='Concluída'?'#059669':corProc;
+
+    return `
+    <div class="gantt-proc-group">
+      <!-- linha cabeçalho do processo -->
+      <div class="gantt-proc-row">
+        <div class="gantt-proc-label">
+          <div style="width:10px;height:10px;border-radius:3px;background:${corProc};flex-shrink:0"></div>
+          <div class="gantt-proc-label-text" title="${proc.nome}">${proc.nome}</div>
+          <span style="font-size:9px;font-weight:700;color:${stC};flex-shrink:0;margin-left:4px">${progressoProcesso(proc)}%</span>
+        </div>
+        <div class="gantt-proc-timeline">
+          ${procBarHtml}
+          ${todayLine}
+        </div>
+      </div>
+      <!-- linhas de especialidades -->
+      ${discRows}
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="gantt-wrap">
+    <!-- Cabeçalho meses -->
+    <div class="gantt-header-row">
+      <div class="gantt-label-col">Processo / Especialidade</div>
+      <div class="gantt-timeline-cols">${headerMeses}</div>
+    </div>
+    <div class="gantt-scroll">
+      <div class="gantt-container">
+        ${rows}
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de prazos críticos -->
+  <div class="gantt-summary-card">
+    <h4>📋 Resumo de Prazos e Status</h4>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:6px 10px;font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:700">Processo</th>
+            <th style="text-align:left;padding:6px 10px;font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:700">Tipo</th>
+            <th style="text-align:left;padding:6px 10px;font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:700">Prioridade</th>
+            <th style="text-align:left;padding:6px 10px;font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:700">Prazo</th>
+            <th style="text-align:left;padding:6px 10px;font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:700">Status</th>
+            <th style="text-align:right;padding:6px 10px;font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:700">Progresso</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${processos.map(p => {
+            const st = statusProcesso(p);
+            const stC = st==='Bloqueada'?'var(--red)':st==='Concluída'?'var(--green)':st==='Em Execução'?'var(--blue)':'var(--amber)';
+            const pct = progressoProcesso(p);
+            const hoje = new Date();
+            const prazoDate = p.prazo ? new Date(p.prazo + 'T12:00:00') : null;
+            const diasRestantes = prazoDate ? Math.ceil((prazoDate - hoje) / 86400000) : null;
+            const prazoAlerta = diasRestantes !== null && diasRestantes < 30 && st !== 'Concluída';
+            return `
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;font-weight:600">${p.nome}</td>
+              <td style="padding:8px 10px"><span class="chip-sm ${p.tipo==='edificacao'?'chip-blue':'chip-teal'}">${p.tipo==='edificacao'?'Edificação':'Implantação'}</span></td>
+              <td style="padding:8px 10px"><span class="chip-sm ${prioChip(p.prioridade)}">${p.prioridade}</span></td>
+              <td style="padding:8px 10px;color:${prazoAlerta?'var(--red)':'var(--text-primary)'};font-weight:${prazoAlerta?'700':'400'}">${p.prazo ? p.prazo + (prazoAlerta?` ⚠ ${diasRestantes}d`:'') : '—'}</td>
+              <td style="padding:8px 10px"><span style="color:${stC};font-weight:700;font-size:11px">${st}</span></td>
+              <td style="padding:8px 10px;text-align:right">
+                <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end">
+                  <div style="width:80px;height:6px;background:var(--border);border-radius:99px;overflow:hidden">
+                    <div style="width:${pct}%;height:100%;background:${pct===100?'var(--green)':pct>50?'var(--blue)':'var(--amber)'};border-radius:99px"></div>
+                  </div>
+                  <span style="font-weight:700;font-size:11px;color:${pct===100?'var(--green)':pct>50?'var(--blue)':'var(--amber)'}">${pct}%</span>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderGanttServidores(today, todayPct) {
+  const headerMeses = MESES.map(m => `<div class="gantt-month-col">${m}</div>`).join('');
+
+  // Só servidores com demandas
+  const servsAtivos = njpServidores.filter(s => getDemandasByServidor(s.id).length > 0);
+
+  const rows = servsAtivos.map(s => {
+    const todas = getDemandasByServidor(s.id);
+    const cap = s.ehArqUrbProjetos && s.limite > 0 ? s.limite : s.capacidade;
+    const loadPct = Math.min(100, Math.round((todas.length / cap) * 100));
+    const loadCor = loadPct >= 100 ? '#DC2626' : loadPct >= 70 ? '#D97706' : '#059669';
+
+    const discRows = todas.map(x => {
+      const dem = x.demanda;
+      const proc = x.proc;
+      const disc = DISCIPLINAS[dem.disc];
+      const st = statusDemanda(dem);
+      const pct = progressoDemanda(dem);
+      const { inicio, fim } = procDates(proc);
+      const pInicio = inicio ? ganttPos(inicio) : null;
+      const pFim = fim ? ganttPos(fim) : null;
+
+      const fase = faseAtualDemanda(proc, dem);
+
+      let barCor = disc.cor;
+      if (st === 'Concluída') barCor = '#059669';
+      else if (st === 'Bloqueada') barCor = '#DC2626';
+      else if (st === 'Aguardando atribuição') barCor = '#94A3B8';
+
+      let barHtml = '';
+      if (pInicio !== null && pFim !== null) {
+        const left = (pInicio * 100).toFixed(2);
+        const width = Math.max(0.5, ((pFim - pInicio) * 100)).toFixed(2);
+        const fillW = (parseFloat(width) * pct / 100).toFixed(2);
+        barHtml = `
+          <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${barCor};opacity:${st==='Aguardando atribuição'?0.35:0.85}" title="${proc.nome} · ${disc.nome} — Fase atual: ${fase.label} (${pct}% concluído)">
+            ${parseFloat(width) > 12 ? (pct > 0 ? pct+'%' : '') : ''}
+          </div>
+          ${pct > 0 ? `<div style="position:absolute;top:4px;height:16px;background:rgba(255,255,255,0.4);border-radius:4px 0 0 4px;left:${left}%;width:${fillW}%;pointer-events:none"></div>` : ''}
+          <div class="gantt-today" style="left:${todayPct}%"></div>`;
+      } else {
+        barHtml = `<div class="gantt-today" style="left:${todayPct}%"></div>`;
+      }
+
+      return `
+      <div class="gantt-disc-row">
+        <div class="gantt-disc-label">
+          <div class="gantt-disc-label-row">
+            <div style="width:8px;height:8px;border-radius:2px;background:${barCor};flex-shrink:0"></div>
+            <div class="gantt-disc-label-text" title="${proc.nome}">${disc.iniciais} · ${proc.nome.split('·')[0].trim()}</div>
+            <span style="margin-left:auto;font-size:9px;font-weight:700;color:${barCor}">${pct}%</span>
+          </div>
+          <div class="gantt-disc-fase" title="${fase.label}">${fase.label}</div>
+        </div>
+        <div class="gantt-disc-timeline">${barHtml}</div>
+      </div>`;
+    }).join('');
+
+    return `
+    <div class="gantt-proc-group">
+      <div class="gantt-proc-row">
+        <div class="gantt-proc-label">
+          <div style="width:28px;height:28px;border-radius:7px;background:${s.cor};color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${s.iniciais}</div>
+          <div style="flex:1;min-width:0">
+            <div class="gantt-proc-label-text" title="${s.nome}" style="font-size:11px">${s.nome.split(' ')[0]+' '+s.nome.split(' ')[1]}</div>
+            <div style="font-size:9px;color:var(--text-muted)">${s.disciplinas.join(', ')} · ${todas.length}/${cap} demandas</div>
+          </div>
+          <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(${loadCor} ${loadPct*3.6}deg,var(--border) 0);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <div style="width:20px;height:20px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:${loadCor}">${loadPct}%</div>
+          </div>
+        </div>
+        <div class="gantt-proc-timeline">
+          <div class="gantt-today" style="left:${todayPct}%"></div>
+        </div>
+      </div>
+      ${discRows}
+    </div>`;
+  }).join('');
+
+  // Painel de carga por servidor
+  const cargaRows = servsAtivos.map(s => {
+    const todas = getDemandasByServidor(s.id);
+    const cap = s.ehArqUrbProjetos && s.limite > 0 ? s.limite : s.capacidade;
+    const pct = Math.min(100, Math.round((todas.length/cap)*100));
+    const cor = pct>=100?'#DC2626':pct>=70?'#D97706':'#059669';
+    return `
+    <div class="gantt-server-row">
+      <div style="display:flex;align-items:center;gap:8px;width:200px;flex-shrink:0">
+        <div style="width:24px;height:24px;border-radius:6px;background:${s.cor};color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${s.iniciais}</div>
+        <div class="gantt-server-name" style="width:auto">${s.nome.split(' ')[0]+' '+s.nome.split(' ')[1]}</div>
+      </div>
+      <div class="gantt-server-bar-wrap">
+        <div class="gantt-server-fill" style="width:${pct}%;background:${cor}"></div>
+      </div>
+      <div class="gantt-server-pct" style="color:${cor}">${pct}%</div>
+      <div style="font-size:10px;color:var(--text-muted);width:70px;text-align:right;flex-shrink:0">${todas.length}/${cap} dem.</div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="gantt-wrap">
+    <div class="gantt-header-row">
+      <div class="gantt-label-col">Servidor / Demanda</div>
+      <div class="gantt-timeline-cols">${headerMeses}</div>
+    </div>
+    <div class="gantt-scroll">
+      <div class="gantt-container">${rows}</div>
+    </div>
+  </div>
+
+  <div class="gantt-summary-card">
+    <h4>📊 Carga Atual por Servidor</h4>
+    ${cargaRows}
+  </div>`;
+}
+
+function progressoProcesso(proc) {
+  let total = 0, done = 0;
+  for (const d of proc.demandas) {
+    total += d.checklist.length;
+    done += d.checklist.filter(c => c.status === 'concluido').length;
+  }
+  return total > 0 ? Math.round((done/total)*100) : 0;
+}
+
+function setGanttView(v) {
+  ganttView = v;
+  render();
+}
+
+// ============================================================
+// TOGGLE / HELPERS
+// ============================================================
+function toggleProc(id) {
+  expandedProcId = expandedProcId === id ? null : id;
+  render();
+}
+function editLimite(servId) {
+  const s = getServidor(servId);
+  if (!s) return;
+  const novo = prompt(`Novo limite de processos simultâneos para ${s.nome}:`, s.limite);
+  if (novo !== null && !isNaN(parseInt(novo)) && parseInt(novo) > 0) {
+    s.limite = parseInt(novo);
+    showToast(`Limite de ${s.nome} atualizado para ${s.limite} processo(s).`);
+    render();
+  }
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = '✓ ' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 3500);
+}
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// INIT
+updateBadges();
+render();
+</script>
+</body>
+</html>
