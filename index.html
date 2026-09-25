@@ -340,7 +340,7 @@ textarea.form-input{resize:vertical;min-height:80px;line-height:1.6}
     <div class="user-chip">
       <div class="user-avatar" id="sidebarAvatar">WP</div>
       <div>
-        <div class="user-name" id="sidebarName">Walterney Pereira</div>
+        <div class="user-name" id="sidebarName">Emmanuelle Guimarães</div>
         <div class="user-role-label" id="sidebarRole">Chefe NJP · DINFRA</div>
       </div>
     </div>
@@ -660,7 +660,7 @@ const njpServidores = [
 // USUÁRIOS DO SISTEMA
 // ============================================================
 let usuarios = [
-  { id:1, nome:'Walterney Pereira', iniciais:'WP', email:'walterney.pereira@ifma.edu.br', cargo:'Chefe do NJP', perfil:'Gerencial', ativo:true },
+  { id:1, nome:'Emmanuelle Cristine Rocha Guimarães', iniciais:'EG', email:'emmanuelle.guimaraes@ifma.edu.br', cargo:'Chefe do NJP', perfil:'Gerencial', ativo:true },
   { id:2, nome:'Paula Palmeira Alves', iniciais:'PA', email:'paula.alves@ifma.edu.br', cargo:'Arquiteta e Urbanista', perfil:'Alimentador', ativo:true },
   { id:3, nome:'Ramom Luiz Ribeiro', iniciais:'RL', email:'ramom.ribeiro@ifma.edu.br', cargo:'Arquiteto e Urbanista', perfil:'Alimentador', ativo:true },
   { id:4, nome:'Emanuele Silva', iniciais:'ES', email:'emanuele.silva@ifma.edu.br', cargo:'Técnica em Edificações', perfil:'Alimentador', ativo:true }
@@ -796,7 +796,7 @@ let processos = [
         {id:'arq1',status:'concluido',doc:'Prancha ARQ-01/2026'},{id:'arq2',status:'concluido',doc:'RRT 456789'},
         {id:'arq3',status:'em_andamento',doc:null},{id:'arq4',status:'pendente',doc:null},
         {id:'imp_arq1',status:'pendente',doc:null},{id:'imp_arq2',status:'pendente',doc:null},{id:'imp_arq3',status:'pendente',doc:null},{id:'imp_arq4',status:'pendente',doc:null},{id:'imp_arq5',status:'pendente',doc:null}
-      ], deliberacao:{ justificativa:'Porto Franco é prioridade pela determinação da Reitoria (Of. 28/2026).', por:'Walterney Pereira', em:'01/Set/2026' }},
+      ], deliberacao:{ justificativa:'Porto Franco é prioridade pela determinação da Reitoria (Of. 28/2026).', por:'Emmanuelle Cristine Rocha Guimarães', em:'01/Set/2026' }},
       { id:'d101_EST', disc:'EST', servidor:5, status:'Em execução', checklist: [
         {id:'est1',status:'em_andamento',doc:null},{id:'est2',status:'pendente',doc:null},{id:'est3',status:'pendente',doc:null},{id:'est4',status:'pendente',doc:null}
       ], deliberacao:null },
@@ -958,7 +958,7 @@ function _setAdminNav(visible) {
 function changeRole(r) {
   currentRole = r;
   const map = {
-    Gerencial: ['WP','Walterney Pereira','Chefe NJP · DINFRA'],
+    Gerencial: ['EG','Emmanuelle Guimarães','Chefe NJP · DINFRA'],
     'Estratégico': ['RE','Reitoria IFMA','Perfil Estratégico'],
     Alimentador: ['ST','Servidor Técnico','Alimentador Técnico']
   };
