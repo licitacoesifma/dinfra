@@ -330,6 +330,11 @@ textarea.form-input{resize:vertical;min-height:80px;line-height:1.6}
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
       Gantt de Projetos
     </div>
+    <div class="nav-section" id="navSecAdmin" style="display:none">Administração</div>
+    <div class="nav-item" id="navUsuarios" onclick="goView('usuarios')" style="display:none">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      Usuários do Sistema
+    </div>
   </nav>
   <div class="sidebar-footer">
     <div class="user-chip">
@@ -495,6 +500,38 @@ textarea.form-input{resize:vertical;min-height:80px;line-height:1.6}
   </div>
 </div>
 
+<!-- MODAL: ADICIONAR / EDITAR USUÁRIO -->
+<div class="modal-overlay" id="modalUsuario">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-icon" style="background:var(--blue-light)"><svg fill="none" stroke="var(--blue)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg></div>
+      <div><div class="modal-title" id="usr_modal_titulo">Adicionar Usuário</div><div class="modal-sub">Defina o acesso deste usuário ao SIGOBRAS.</div></div>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="usr_edit_id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label class="form-label">NOME COMPLETO</label><input class="form-input" id="usr_nome" placeholder="Nome do usuário"></div>
+        <div><label class="form-label">E-MAIL INSTITUCIONAL</label><input class="form-input" id="usr_email" placeholder="usuario@ifma.edu.br"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label class="form-label">CARGO / FUNÇÃO</label><input class="form-input" id="usr_cargo" placeholder="Ex: Arquiteto e Urbanista"></div>
+        <div><label class="form-label">PERFIL DE ACESSO</label>
+          <select class="form-input" id="usr_perfil">
+            <option value="Gerencial">Gerencial (Chefe NJP)</option>
+            <option value="Estratégico">Estratégico (Reitoria)</option>
+            <option value="Alimentador">Alimentador Técnico (Servidor NJP)</option>
+          </select>
+        </div>
+      </div>
+      <div class="nota-audit" style="margin-top:10px">⚙ O perfil determina o que o usuário pode visualizar e executar no sistema. Apenas o Gerente pode alterar perfis.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal('modalUsuario')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmUsuario()">Salvar Usuário</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ============================================================
 // DEFINIÇÃO DAS DISCIPLINAS E ENTREGÁVEIS
@@ -618,6 +655,113 @@ const njpServidores = [
   { id:9, nome:'Ricardo Souza Nunes', iniciais:'RN', cargo:'Engenheiro de Segurança · CIP', disciplinas:['CIP'], cor:'#DC2626', ehArqUrbProjetos:false, limite:0, capacidade:4 },
   { id:10, nome:'Mariana Vaz Torres', iniciais:'MV', cargo:'Engenheira Mecânica · Climatização', disciplinas:['CLI'], cor:'#9333EA', ehArqUrbProjetos:false, limite:0, capacidade:3 }
 ];
+
+// ============================================================
+// USUÁRIOS DO SISTEMA
+// ============================================================
+let usuarios = [
+  { id:1, nome:'Walterney Pereira', iniciais:'WP', email:'walterney.pereira@ifma.edu.br', cargo:'Chefe do NJP', perfil:'Gerencial', ativo:true },
+  { id:2, nome:'Paula Palmeira Alves', iniciais:'PA', email:'paula.alves@ifma.edu.br', cargo:'Arquiteta e Urbanista', perfil:'Alimentador', ativo:true },
+  { id:3, nome:'Ramom Luiz Ribeiro', iniciais:'RL', email:'ramom.ribeiro@ifma.edu.br', cargo:'Arquiteto e Urbanista', perfil:'Alimentador', ativo:true },
+  { id:4, nome:'Emanuele Silva', iniciais:'ES', email:'emanuele.silva@ifma.edu.br', cargo:'Técnica em Edificações', perfil:'Alimentador', ativo:true }
+];
+let _usrNextId = 5;
+
+function renderUsuarios() {
+  const perfilBadge = { Gerencial:'badge-blue', Estratégico:'badge-teal', Alimentador:'badge-amber' };
+  const rows = usuarios.map(u => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px">
+        <div class="user-avatar" style="width:32px;height:32px;background:var(--blue);border-radius:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0">${u.iniciais}</div>
+        <div><div style="font-weight:600;font-size:13px">${u.nome}</div><div style="font-size:11px;color:var(--text-secondary)">${u.email}</div></div>
+      </div></td>
+      <td style="font-size:12px;color:var(--text-secondary)">${u.cargo}</td>
+      <td><span class="badge ${perfilBadge[u.perfil]||'badge-gray'}">${u.perfil}</span></td>
+      <td><span class="badge ${u.ativo?'badge-green':'badge-gray'}">${u.ativo?'Ativo':'Inativo'}</span></td>
+      <td style="text-align:right">
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="editarUsuario(${u.id})">Editar</button>
+        <button class="btn ${u.ativo?'btn-outline-red':'btn-outline-blue'}" style="padding:4px 10px;font-size:11px;margin-left:4px" onclick="toggleAtivoUsuario(${u.id})">${u.ativo?'Desativar':'Reativar'}</button>
+        <button class="btn btn-outline-red" style="padding:4px 10px;font-size:11px;margin-left:4px" onclick="excluirUsuario(${u.id})">Excluir</button>
+      </td>
+    </tr>`).join('');
+
+  return `
+  <div class="section-hd">
+    <div><h3>Usuários com Acesso ao SIGOBRAS</h3><p>Gerencie quem pode acessar o sistema e com qual perfil.</p></div>
+    <button class="btn btn-primary" onclick="abrirModalNovoUsuario()">+ Adicionar Usuário</button>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)">
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background:var(--surface-2);border-bottom:1px solid var(--border)">
+          <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary)">USUÁRIO</th>
+          <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary)">CARGO</th>
+          <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary)">PERFIL</th>
+          <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary)">STATUS</th>
+          <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:var(--text-secondary)">AÇÕES</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+  <div style="margin-top:14px;padding:12px 16px;background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:var(--radius);font-size:12px;color:var(--blue)">
+    <strong>Perfis de acesso:</strong> <b>Gerencial</b> — gerencia processos, servidores e usuários. <b>Estratégico</b> — visão consolidada somente leitura. <b>Alimentador</b> — atualiza checklists de suas demandas.
+  </div>`;
+}
+
+function abrirModalNovoUsuario() {
+  document.getElementById('usr_edit_id').value = '';
+  document.getElementById('usr_modal_titulo').textContent = 'Adicionar Usuário';
+  document.getElementById('usr_nome').value = '';
+  document.getElementById('usr_email').value = '';
+  document.getElementById('usr_cargo').value = '';
+  document.getElementById('usr_perfil').value = 'Alimentador';
+  document.getElementById('modalUsuario').classList.add('open');
+}
+
+function editarUsuario(id) {
+  const u = usuarios.find(x => x.id === id);
+  if (!u) return;
+  document.getElementById('usr_edit_id').value = id;
+  document.getElementById('usr_modal_titulo').textContent = 'Editar Usuário';
+  document.getElementById('usr_nome').value = u.nome;
+  document.getElementById('usr_email').value = u.email;
+  document.getElementById('usr_cargo').value = u.cargo;
+  document.getElementById('usr_perfil').value = u.perfil;
+  document.getElementById('modalUsuario').classList.add('open');
+}
+
+function confirmUsuario() {
+  const nome = document.getElementById('usr_nome').value.trim();
+  const email = document.getElementById('usr_email').value.trim();
+  const cargo = document.getElementById('usr_cargo').value.trim();
+  const perfil = document.getElementById('usr_perfil').value;
+  if (!nome || !email) { alert('Nome e e-mail são obrigatórios.'); return; }
+
+  const editId = parseInt(document.getElementById('usr_edit_id').value);
+  const iniciais = nome.split(' ').filter(Boolean).map(p=>p[0].toUpperCase()).slice(0,2).join('');
+
+  if (editId) {
+    const u = usuarios.find(x => x.id === editId);
+    if (u) { u.nome = nome; u.email = email; u.cargo = cargo; u.perfil = perfil; u.iniciais = iniciais; }
+  } else {
+    usuarios.push({ id: _usrNextId++, nome, iniciais, email, cargo, perfil, ativo: true });
+  }
+  closeModal('modalUsuario');
+  if (currentView === 'usuarios') render();
+}
+
+function toggleAtivoUsuario(id) {
+  const u = usuarios.find(x => x.id === id);
+  if (u) { u.ativo = !u.ativo; render(); }
+}
+function excluirUsuario(id) {
+  const u = usuarios.find(x => x.id === id);
+  if (!u) return;
+  if (!confirm(`Excluir permanentemente o usuário "${u.nome}"?\n\nEsta ação não pode ser desfeita.`)) return;
+  usuarios = usuarios.filter(x => x.id !== id);
+  render();
+}
 
 // ============================================================
 // DADOS: PROCESSOS SUAP
@@ -786,9 +930,12 @@ const VIEWS = {
   dashboard: ['Dashboard Executivo','Visão macro da infraestrutura institucional.'],
   njp: ['Gestão NJP','Processos SUAP · Especialidades · Checklists de Entregáveis'],
   servidores: ['Servidores & Carga de Trabalho','Capacidade instalada por servidor e disciplina.'],
-  gantt: ['Gantt de Projetos','Cronograma visual de processos e especialidades por servidor — visão da chefia.']
+  gantt: ['Gantt de Projetos','Cronograma visual de processos e especialidades por servidor — visão da chefia.'],
+  usuarios: ['Usuários do Sistema','Gerencie quem tem acesso ao SIGOBRAS e com qual perfil.']
 };
 function goView(v) {
+  // bloqueia acesso à tela de usuários para não-gerentes
+  if (v === 'usuarios' && currentRole !== 'Gerencial') return;
   currentView = v;
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   const items = document.querySelectorAll('.nav-item');
@@ -796,9 +943,17 @@ function goView(v) {
   else if (v==='njp') items[1].classList.add('active');
   else if (v==='servidores') items[2].classList.add('active');
   else if (v==='gantt') items[3].classList.add('active');
+  else if (v==='usuarios') document.getElementById('navUsuarios').classList.add('active');
   document.getElementById('topbarTitle').textContent = VIEWS[v][0];
   document.getElementById('topbarSub').textContent = VIEWS[v][1];
   render();
+}
+function _setAdminNav(visible) {
+  ['navSecAdmin','navUsuarios'].forEach(id => {
+    document.getElementById(id).style.display = visible ? '' : 'none';
+  });
+  // se estava na tela de usuários e perdeu acesso, volta ao dashboard
+  if (!visible && currentView === 'usuarios') goView('dashboard');
 }
 function changeRole(r) {
   currentRole = r;
@@ -811,6 +966,7 @@ function changeRole(r) {
   document.getElementById('sidebarAvatar').textContent = m[0];
   document.getElementById('sidebarName').textContent = m[1];
   document.getElementById('sidebarRole').textContent = m[2];
+  _setAdminNav(r === 'Gerencial');
   render();
 }
 function updateBadges() {
@@ -832,6 +988,7 @@ function render() {
   else if (currentView === 'njp') c.innerHTML = renderNJP();
   else if (currentView === 'servidores') c.innerHTML = renderServidores();
   else if (currentView === 'gantt') c.innerHTML = renderGantt();
+  else if (currentView === 'usuarios') c.innerHTML = renderUsuarios();
   updateBadges();
 }
 
@@ -1782,6 +1939,7 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 
 // INIT
+_setAdminNav(currentRole === 'Gerencial');
 updateBadges();
 render();
 </script>
